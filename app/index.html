@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARTIE Bowling & Dining | ダイナミッククーポン＆メニュー配信シミュレータ (PoC)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;700;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-badge">ARTIE POC</div>
+        <h1>次世代ボウリング＆ダイニング <span>ダイナミッククーポン＆メニュー配信シミュレータ</span></h1>
+      </div>
+      <div class="header-right">
+        <span class="system-status"><span class="status-dot"></span> レーン連動システム稼働中</span>
+      </div>
+    </header>
+
+    <!-- Upper Section: Bowling Environment & Scoreboard -->
+    <section class="bowling-sim-section">
+      <!-- Control Bar -->
+      <div class="control-bar card">
+        <div class="control-group">
+          <label class="control-label">来店シチュエーション・プリセット</label>
+          <div class="preset-buttons">
+            <button class="preset-btn active" data-preset="senior_lunch">
+              <span class="preset-icon">🍵</span>
+              <span class="preset-info">
+                <strong>平日昼（11:30）</strong>
+                <small>シニア夫婦 / リーグ戦（2名）</small>
+              </span>
+            </button>
+            <button class="preset-btn" data-preset="student_afternoon">
+              <span class="preset-icon">🍟</span>
+              <span class="preset-info">
+                <strong>平日夕方（16:30）</strong>
+                <small>放課後学生グループ（4名）</small>
+              </span>
+            </button>
+            <button class="preset-btn" data-preset="adult_evening">
+              <span class="preset-icon">🍻</span>
+              <span class="preset-info">
+                <strong>平日夜（19:30）</strong>
+                <small>会社同僚 / 懇親会（4名）</small>
+              </span>
+            </button>
+            <button class="preset-btn" data-preset="family_weekend">
+              <span class="preset-icon">👨‍👩‍👧</span>
+              <span class="preset-info">
+                <strong>休日昼（13:00）</strong>
+                <small>ファミリー（3名：両親＋子）</small>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div class="control-sub-row">
+          <div class="sub-control-item">
+            <label for="date-select">プレイ日</label>
+            <input type="date" id="date-select" value="2025-12-09">
+          </div>
+          <div class="sub-control-item">
+            <label for="time-select">時間帯</label>
+            <select id="time-select">
+              <option value="11:30">11:30（ランチ / シニア）</option>
+              <option value="14:15">14:15（谷間・入替バッファ）</option>
+              <option value="16:30">16:30（夕方 / 学生）</option>
+              <option value="19:30">19:30（夜間 / 社会人）</option>
+              <option value="13:00">13:00（休日ファミリー）</option>
+            </select>
+          </div>
+          <div class="sub-control-item">
+            <label>レーン登録人数</label>
+            <div class="player-count-toggle">
+              <button class="count-btn" data-count="1">1人</button>
+              <button class="count-btn active" data-count="2">2人</button>
+              <button class="count-btn" data-count="3">3人</button>
+              <button class="count-btn" data-count="4">4人</button>
+            </div>
+          </div>
+          <div class="sub-control-item">
+            <label>対象レーン</label>
+            <div class="lane-badge">Lane #05</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scoreboard & Overhead Monitor Grid -->
+      <div class="scoreboard-grid">
+        <!-- Scoreboard Table Area -->
+        <div class="scoreboard-container card">
+          <div class="section-title-row">
+            <h2>🎳 レーンスコアボード <span class="sub-text">(Lane 5)</span></h2>
+            <div class="game-info">Game 1 / 10th Frame</div>
+          </div>
+          <div class="table-responsive">
+            <table class="bowling-table" id="bowling-table">
+              <thead>
+                <tr>
+                  <th class="col-player">プレイヤー</th>
+                  <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+                  <th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+                  <th class="col-total">TOTAL</th>
+                </tr>
+              </thead>
+              <tbody id="scoreboard-body">
+                <!-- Dynamically populated by JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Simulation Triggers Bar -->
+          <div class="sim-actions-panel">
+            <span class="sim-actions-label">アクションシミュレータ:</span>
+            <div class="action-buttons-group">
+              <button class="action-btn btn-strike" id="btn-strike">🎳 ストライク！</button>
+              <button class="action-btn btn-turkey" id="btn-turkey">🔥 ターキー達成！</button>
+              <button class="action-btn btn-gutter" id="btn-gutter">💦 連続ガター（子ども救済）</button>
+              <button class="action-btn btn-date" id="btn-date">📅 日付スコア (129点)</button>
+              <button class="action-btn btn-zoro" id="btn-zoro">🎰 ゾロ目 (111点)</button>
+              <button class="action-btn btn-just" id="btn-just">🎯 ピタリ賞 (100点)</button>
+              <button class="action-btn btn-birthday" id="btn-birthday">🎂 誕生月ボーナス</button>
+              <button class="action-btn btn-gameover" id="btn-gameover">🏁 2ゲーム終了 (送客)</button>
+              <button class="action-btn btn-reset" id="btn-reset">🔄 リセット</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overhead Monitor Display Mockup -->
+        <div class="overhead-monitor-container card">
+          <div class="monitor-frame">
+            <div class="monitor-screen" id="overhead-screen">
+              <div class="monitor-header">
+                <span class="monitor-lane">LANE 5</span>
+                <span class="monitor-time" id="monitor-clock">11:30 AM</span>
+              </div>
+              <div class="monitor-main-display" id="monitor-content">
+                <div class="monitor-anim-icon">🎳</div>
+                <div class="monitor-banner-title">READY TO BOWL</div>
+                <div class="monitor-banner-sub">投球してください</div>
+              </div>
+              <div class="monitor-footer" id="monitor-voucher-area">
+                <div class="voucher-mini-badge">Bolo Dining Voucher</div>
+                <div class="voucher-mini-code">合言葉: <strong>#7842</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="monitor-caption">▲ レーン頭上大型ディスプレイ</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lower Section: Tablet Mockup & Strategy Rationale Panel -->
+    <section class="tablet-and-rationale-section">
+      <!-- Left / Center: Lane Tablet Screen Mockup -->
+      <div class="tablet-column">
+        <div class="tablet-device-frame">
+          <div class="tablet-camera-notch"></div>
+          <div class="tablet-screen" id="tablet-screen">
+            <!-- Tablet Status Bar -->
+            <div class="tablet-status-bar">
+              <span>Lane 5 注文専用端末</span>
+              <span class="tablet-clock" id="tablet-clock">11:30</span>
+              <span>Wi-Fi 📶 100%</span>
+            </div>
+
+            <!-- Tablet App Header -->
+            <div class="tablet-app-header">
+              <div class="restaurant-brand">
+                <span class="brand-logo">🍝</span>
+                <div>
+                  <h3>Italian Dining Bolo</h3>
+                  <small>レーン直送オーダーシステム</small>
+                </div>
+              </div>
+              <div class="time-slot-badge" id="tablet-time-tag">昼の健康ランチタイム</div>
+            </div>
+
+            <!-- Active Push Coupon Banner (Special / Easter Egg / Group) -->
+            <div class="coupon-push-container" id="coupon-push-banner">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Menu Category Tabs -->
+            <div class="menu-tabs" id="menu-tabs">
+              <button class="tab-btn active" data-category="recommended">本日のおすすめ</button>
+              <button class="tab-btn" data-category="food">食事・ピザ・パスタ</button>
+              <button class="tab-btn" data-category="snack">軽食・タパス</button>
+              <button class="tab-btn" data-category="dessert">デザート</button>
+              <button class="tab-btn" data-category="drink">ドリンク</button>
+            </div>
+
+            <!-- Menu Items Grid -->
+            <div class="menu-grid" id="menu-grid">
+              <!-- Dynamically rendered -->
+            </div>
+
+            <!-- Tablet Cart & Order Footer -->
+            <div class="tablet-order-bar">
+              <div class="cart-summary">
+                <span class="cart-count" id="cart-count">注文合計: 0品</span>
+                <span class="cart-total" id="cart-total">¥0</span>
+              </div>
+              <button class="order-submit-btn" id="btn-submit-order">
+                <span>レーンに注文する</span> ➔
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="device-caption">▲ レーン常設 タブレット注文端末 (Bolo Smart Order)</div>
+      </div>
+
+      <!-- Right: Strategy & Rationale Explanation Panel -->
+      <div class="rationale-column">
+        <div class="rationale-card card">
+          <div class="rationale-header">
+            <span class="rationale-tag">PoC 検証インサイト</span>
+            <h2>💡 施策の狙いと戦略的意図 (Rationale)</h2>
+          </div>
+
+          <div class="rationale-body" id="rationale-content">
+            <!-- Dynamically updated -->
+          </div>
+
+          <div class="rationale-footer">
+            <div class="kpi-impact-box">
+              <div class="kpi-title">📊 期待される経営インパクト</div>
+              <div class="kpi-grid">
+                <div class="kpi-item">
+                  <div class="kpi-value" id="kpi-arpu">+35% 〜 +50%</div>
+                  <div class="kpi-label">客単価 (ARPU)</div>
+                </div>
+                <div class="kpi-item">
+                  <div class="kpi-value" id="kpi-cs">4.8 / 5.0</div>
+                  <div class="kpi-label">体験満足度 (CS/NPS)</div>
+                </div>
+                <div class="kpi-item">
+                  <div class="kpi-value">0 %</div>
+                  <div class="kpi-label">不正・コード漏洩リスク</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

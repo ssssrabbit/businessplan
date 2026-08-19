@@ -6,13 +6,14 @@
   <title>方程式の式変形 反復ドリル</title>
   <style>
     :root {
-      --bg-color: #f1f5f9;
+      --bg-color: #f8fafc;
       --card-bg: #ffffff;
       --primary: #2563eb;
+      --primary-hover: #1d4ed8;
       --success: #16a34a;
       --error: #dc2626;
       --warning: #d97706;
-      --text: #1e293b;
+      --text: #0f172a;
       --border: #cbd5e1;
     }
 
@@ -35,28 +36,30 @@
 
     .container {
       background: var(--card-bg);
-      border-radius: 16px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 640px;
-      padding: 32px;
+      padding: 28px;
+      position: relative;
     }
 
     h1 {
-      font-size: 1.35rem;
+      font-size: 1.4rem;
       text-align: center;
       margin-bottom: 20px;
       color: #0f172a;
     }
 
+    /* カウンターボード */
     .stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      background-color: #f8fafc;
-      border: 1px solid var(--border);
+      background-color: #f1f5f9;
+      border: 2px solid var(--border);
       padding: 12px;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 24px;
       text-align: center;
     }
@@ -64,43 +67,77 @@
     .stat-item {
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
     .stat-label {
       font-size: 0.8rem;
+      font-weight: bold;
       color: #64748b;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .stat-value {
-      font-size: 1.35rem;
-      font-weight: 800;
+      font-size: 1.8rem;
+      font-weight: 900;
+      display: inline-block;
+      transition: transform 0.2s ease;
     }
 
     .stat-value.success { color: var(--success); }
     .stat-value.error { color: var(--error); }
 
+    /* カウントアップ時の跳ねるアニメーション */
+    .bounce {
+      animation: popBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popBounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.6); }
+      100% { transform: scale(1); }
+    }
+
+    /* カウント時の「+1」浮遊エフェクト */
+    .plus-one-float {
+      position: absolute;
+      top: -10px;
+      right: 25%;
+      font-size: 1.2rem;
+      font-weight: 900;
+      pointer-events: none;
+      animation: floatUp 0.8s ease-out forwards;
+    }
+
+    .plus-one-float.success { color: var(--success); }
+    .plus-one-float.error { color: var(--error); }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-25px) scale(1.4); }
+    }
+
     .problem-box {
       background-color: #ffffff;
-      border: 2px solid var(--border);
-      border-radius: 12px;
+      border: 3px solid var(--border);
+      border-radius: 16px;
       padding: 24px;
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
     .instruction {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #475569;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #334155;
       margin-bottom: 16px;
     }
 
     .equation-display {
-      font-size: 2.2rem;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      margin-bottom: 24px;
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
       color: #0f172a;
     }
 
@@ -109,94 +146,122 @@
       justify-content: center;
       align-items: center;
       gap: 10px;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       font-weight: bold;
     }
 
     input[type="text"] {
-      font-size: 1.5rem;
-      padding: 8px 16px;
+      font-size: 1.6rem;
+      padding: 10px 16px;
       width: 220px;
-      border: 2px solid var(--border);
-      border-radius: 8px;
+      border: 3px solid var(--border);
+      border-radius: 10px;
       text-align: center;
       outline: none;
+      font-weight: bold;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     input[type="text"]:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
     }
 
     .btn {
       display: block;
       width: 100%;
-      padding: 14px;
-      font-size: 1.15rem;
-      font-weight: 700;
+      padding: 16px;
+      font-size: 1.25rem;
+      font-weight: 800;
       color: #ffffff;
       background-color: var(--primary);
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      margin-top: 18px;
-      transition: opacity 0.2s;
+      margin-top: 20px;
+      transition: transform 0.1s, opacity 0.2s, background-color 0.2s;
     }
 
     .btn:hover {
-      opacity: 0.92;
+      background-color: var(--primary-hover);
     }
 
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    /* フィードバック表示エリア */
     .feedback {
       margin-top: 20px;
-      padding: 18px;
-      border-radius: 10px;
-      display: none;
+      padding: 20px;
+      border-radius: 14px;
+      display: none; /* JavaScriptで確実に display: block に制御 */
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .feedback.correct {
-      display: block;
       background-color: #f0fdf4;
-      border: 2px solid #86efac;
+      border: 3px solid #4ade80;
       color: #166534;
     }
 
     .feedback.incorrect {
-      display: block;
       background-color: #fef2f2;
-      border: 2px solid #fca5a5;
+      border: 3px solid #f87171;
       color: #991b1b;
     }
 
     .feedback.calculated-warning {
-      display: block;
       background-color: #fffbeb;
-      border: 2px solid #fcd34d;
-      color: #92400e;
+      border: 3px solid #facc15;
+      color: #854d0e;
     }
 
-    .feedback-title {
-      font-weight: 800;
-      font-size: 1.15rem;
-      margin-bottom: 10px;
+    /* 正解・不正解の大判バッジ */
+    .result-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 1.8rem;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    .result-badge.correct { color: var(--success); }
+    .result-badge.incorrect { color: var(--error); }
+    .result-badge.warning { color: var(--warning); }
+
+    .result-icon {
+      font-size: 2.5rem;
+      line-height: 1;
+    }
+
+    .origin-eq-banner {
+      background: #f1f5f9;
+      border: 2px solid #cbd5e1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
       text-align: center;
-    }
-
-    .feedback-detail {
-      font-size: 0.95rem;
+      margin-bottom: 12px;
       color: #334155;
-      line-height: 1.6;
     }
 
     .diff-table {
       width: 100%;
-      margin: 12px 0 16px 0;
+      margin: 12px 0;
       border-collapse: collapse;
       background: #ffffff;
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
     }
 
     .diff-table th, .diff-table td {
@@ -207,49 +272,57 @@
 
     .diff-table th {
       background-color: #f8fafc;
-      width: 32%;
+      width: 35%;
       color: #475569;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       font-weight: 700;
     }
 
     .diff-table td {
       font-family: monospace, sans-serif;
-      font-size: 1.25rem;
+      font-size: 1.4rem;
       font-weight: bold;
     }
 
+    /* 間違えた文字の赤色強調表示 */
     .char-error {
       color: #dc2626;
       background-color: #fee2e2;
-      border: 1px dashed #ef4444;
-      padding: 2px 6px;
-      border-radius: 4px;
+      border: 2px dashed #ef4444;
+      padding: 2px 8px;
+      border-radius: 6px;
       font-weight: 900;
+      display: inline-block;
+      margin: 0 2px;
     }
 
+    /* 正しい文字の緑色強調表示 */
     .char-correct {
       color: #16a34a;
       background-color: #dcfce7;
-      border: 1px solid #86efac;
-      padding: 2px 6px;
-      border-radius: 4px;
+      border: 2px solid #86efac;
+      padding: 2px 8px;
+      border-radius: 6px;
       font-weight: 900;
+      display: inline-block;
+      margin: 0 2px;
     }
 
     .rule-box {
-      margin-top: 10px;
-      padding: 12px;
+      margin-top: 12px;
+      padding: 12px 16px;
       background: #ffffff;
-      border-left: 4px solid #3b82f6;
-      border-radius: 4px;
+      border-left: 5px solid #3b82f6;
+      border-radius: 6px;
       font-size: 0.95rem;
       color: #1e293b;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      text-align: left;
+      line-height: 1.6;
     }
 
     .hint {
-      margin-top: 18px;
+      margin-top: 20px;
       font-size: 0.85rem;
       color: #64748b;
       text-align: center;
@@ -262,41 +335,44 @@
   <div class="container">
     <h1>方程式の式変形 反復ドリル</h1>
 
+    <!-- カウントエリア -->
     <div class="stats">
-      <div class="stat-item">
-        <span class="stat-label">解いた問題数</span>
+      <div class="stat-item" id="stat-total-box">
+        <span class="stat-label">問題数</span>
         <span class="stat-value" id="total-count">0</span>
       </div>
-      <div class="stat-item">
-        <span class="stat-label">正解数</span>
+      <div class="stat-item" id="stat-correct-box">
+        <span class="stat-label">⭕️ 正解</span>
         <span class="stat-value success" id="correct-count">0</span>
       </div>
-      <div class="stat-item">
-        <span class="stat-label">間違い数</span>
+      <div class="stat-item" id="stat-incorrect-box">
+        <span class="stat-label">❌ ミス</span>
         <span class="stat-value error" id="incorrect-count">0</span>
       </div>
     </div>
 
+    <!-- 問題表示カード -->
     <div class="problem-box">
       <div class="instruction">次の式を「x = 式」の形に変形しなさい。（※計算はしない）</div>
-      <div class="equation-display" id="equation-display">x + 3 = 5</div>
+      <div class="equation-display" id="equation-display">x - 1 = -2</div>
 
       <div class="input-area">
         <span>x =</span>
-        <input type="text" id="user-input" autocomplete="off" placeholder="例: 5-3">
+        <input type="text" id="user-input" autocomplete="off" placeholder="例: -2+1">
       </div>
 
       <button class="btn" id="action-btn" onclick="handleSubmit()">判定する</button>
     </div>
 
+    <!-- フィードバック結果（判定時に display: block で表示） -->
     <div class="feedback" id="feedback-box">
-      <div class="feedback-title" id="feedback-title"></div>
+      <div class="result-badge" id="result-badge"></div>
       <div class="feedback-detail" id="feedback-detail"></div>
     </div>
 
     <div class="hint">
       ※ <strong>計算した答え（xの値）ではなく、移項した直後の式</strong>を書きます。<br>
-      ・足し算/引き算の移項: <code>5-3</code> や <code>-4+4</code><br>
+      ・足し算/引き算の移項: <code>5-3</code> や <code>-2+1</code><br>
       ・係数の移項: <code>-8/2</code> や <code>6/-3</code>
     </div>
   </div>
@@ -308,6 +384,49 @@
 
     let currentProblem = null;
     let isAnswered = false;
+
+    // Web Audio API による効果音生成
+    let audioCtx = null;
+
+    function playSound(type) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'correct') {
+          // ピンポン (高音)
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(659.25, now);
+          osc.frequency.setValueAtTime(880, now + 0.12);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } else {
+          // ブッブー (低音)
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.setValueAtTime(110, now + 0.15);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        }
+      } catch (e) {
+        console.log('Audio Context Error:', e);
+      }
+    }
 
     function getRandomNonZero(min, max) {
       let val = 0;
@@ -327,18 +446,18 @@
         const b = getRandomNonZero(-9, 9);
         
         const sign = a > 0 ? `+ ${a}` : `- ${Math.abs(a)}`;
-        const displayEq = `x ${sign} = ${b}`;
+        const rawEq = `x ${sign} = ${b}`;
         
         const expected = a > 0 ? `${b}-${a}` : `${b}+${Math.abs(a)}`;
         const movedPart = a > 0 ? `-${a}` : `+${Math.abs(a)}`;
 
         return {
           type: 'add_sub',
-          display: displayEq,
+          rawEq: rawEq,
           expected: expected,
           ruleExplanation: a > 0 
-            ? `もとの式の「+${a}」を右辺に移すときは、符号を変えて「<span class="char-correct">-${a}</span>」にします。したがって、右辺は「<span class="char-correct">${expected}</span>」と書きます。` 
-            : `もとの式の「-${Math.abs(a)}」を右辺に移すときは、符号を変えて「<span class="char-correct">+${Math.abs(a)}</span>」にします。したがって、右辺は「<span class="char-correct">${expected}</span>」と書きます。`,
+            ? `左辺の「+${a}」を右辺に移すときは、符号をひっくり返して「<span class="char-correct">-${a}</span>」にします。` 
+            : `左辺の「-${Math.abs(a)}」を右辺に移すときは、符号をひっくり返して「<span class="char-correct">+${Math.abs(a)}</span>」にします。`,
           expectedFormatted: `${b}<span class="char-correct">${movedPart}</span>`
         };
       } else {
@@ -346,15 +465,15 @@
         const b = getRandomNonZero(-9, 9);
         
         const aDisplay = a === 1 ? '' : (a === -1 ? '-' : `${a}`);
-        const displayEq = `${aDisplay}x = ${b}`;
+        const rawEq = `${aDisplay}x = ${b}`;
         
         const expected = `${b}/${a}`;
 
         return {
           type: 'mul_div',
-          display: displayEq,
+          rawEq: rawEq,
           expected: expected,
-          ruleExplanation: `x に掛けてある「${a}」を移動させるときは、両辺を割るため「<span class="char-correct">${b}/${a}</span>」の形にします。（※割り算の移項では符号は変わりません）`,
+          ruleExplanation: `x に掛けてある係数「${a}」で両辺を割るため、右辺は分数（割り算）の「<span class="char-correct">${b}/${a}</span>」になります。（※掛け算・割り算の移動では符号は変えません）`,
           expectedFormatted: `<span class="char-correct">${b}/${a}</span>`
         };
       }
@@ -362,7 +481,7 @@
 
     function renderProblem() {
       currentProblem = generateProblem();
-      document.getElementById('equation-display').textContent = currentProblem.display;
+      document.getElementById('equation-display').textContent = currentProblem.rawEq;
       const input = document.getElementById('user-input');
       input.value = '';
       input.disabled = false;
@@ -370,7 +489,7 @@
 
       const feedbackBox = document.getElementById('feedback-box');
       feedbackBox.className = 'feedback';
-      feedbackBox.style.display = 'none';
+      feedbackBox.style.display = 'none'; // 新しい問題では非表示
 
       const btn = document.getElementById('action-btn');
       btn.textContent = '判定する';
@@ -386,6 +505,7 @@
                 .replace(/―/g, '-');
     }
 
+    // 計算後の単一数値（暗算）かの判定
     function isPureValueInput(userVal) {
       if (userVal.includes('+') || userVal.includes('/')) {
         return false;
@@ -393,6 +513,7 @@
       return /^-?\d+(\.\d+)?$/.test(userVal);
     }
 
+    // 文字列の差分比較を行い、間違えた箇所（符号「+」「-」など）をピンポイントで赤色強調する
     function buildDiffVisual(userInput, expected) {
       let highlightedUser = '';
       let highlightedExpected = '';
@@ -407,6 +528,7 @@
           highlightedUser += uChar;
           highlightedExpected += eChar;
         } else {
+          // 不一致箇所（例: 正解が '+' なのに '-' と書いた場合、'-' を赤字枠線で強調）
           if (uChar) {
             highlightedUser += `<span class="char-error">${uChar}</span>`;
           } else {
@@ -423,6 +545,25 @@
         userHtml: `x = ${highlightedUser}`,
         expectedHtml: `x = ${highlightedExpected}`
       };
+    }
+
+    // カウント増加アニメーション
+    function animateCounter(elementId, parentBoxId, typeClass) {
+      const el = document.getElementById(elementId);
+      const parentBox = document.getElementById(parentBoxId);
+
+      el.classList.remove('bounce');
+      void el.offsetWidth;
+      el.classList.add('bounce');
+
+      const plusOne = document.createElement('div');
+      plusOne.className = `plus-one-float ${typeClass}`;
+      plusOne.textContent = '+1';
+      parentBox.appendChild(plusOne);
+
+      setTimeout(() => {
+        plusOne.remove();
+      }, 800);
     }
 
     function handleSubmit() {
@@ -452,24 +593,43 @@
       const isCorrect = !isCalculated && (userVal === expectedVal);
 
       const feedbackBox = document.getElementById('feedback-box');
-      const feedbackTitle = document.getElementById('feedback-title');
+      const badge = document.getElementById('result-badge');
       const feedbackDetail = document.getElementById('feedback-detail');
       const btn = document.getElementById('action-btn');
 
+      // 判定時は必ず display: block に設定して視認できるようにする
+      feedbackBox.style.display = 'block';
+
       if (isCorrect) {
         correctCount++;
+        playSound('correct');
+        animateCounter('correct-count', 'stat-correct-box', 'success');
+        animateCounter('total-count', 'stat-total-box', 'success');
+
         feedbackBox.className = 'feedback correct';
-        feedbackTitle.textContent = '正解です！';
-        feedbackDetail.innerHTML = `<div style="text-align: center; font-size: 1.25rem; font-weight: bold;">正しい変形: x = ${currentProblem.expected}</div>`;
+        badge.className = 'result-badge correct';
+        badge.innerHTML = `<span class="result-icon">⭕️</span> 大正解！`;
+        feedbackDetail.innerHTML = `
+          <div class="origin-eq-banner">問題: ${currentProblem.rawEq}</div>
+          <div style="text-align: center; font-size: 1.3rem; font-weight: bold; margin-top: 6px;">正しい変形: x = ${currentProblem.expected}</div>
+        `;
+
       } else if (isCalculated) {
         incorrectCount++;
+        playSound('incorrect');
+        animateCounter('incorrect-count', 'stat-incorrect-box', 'error');
+        animateCounter('total-count', 'stat-total-box', 'error');
+
         feedbackBox.className = 'feedback calculated-warning';
-        feedbackTitle.textContent = '⚠️ xの値（計算結果）ではなく「式変形」を書きます！';
+        badge.className = 'result-badge warning';
+        badge.innerHTML = `<span class="result-icon">⚠️</span> 不正解（計算後の値ではなく式を書く）`;
+
         feedbackDetail.innerHTML = `
+          <div class="origin-eq-banner">元の問題: ${currentProblem.rawEq}</div>
           <table class="diff-table">
             <tr>
               <th>あなたの入力</th>
-              <td>x = <span class="char-error">${rawInput}</span> <span style="font-size:0.85rem; color:#dc2626; font-weight:normal;">（計算後の答え）</span></td>
+              <td>x = <span class="char-error">${rawInput}</span> <span style="font-size:0.85rem; color:#dc2626; font-weight:bold;">（計算後の答え）</span></td>
             </tr>
             <tr>
               <th>書くべき正解</th>
@@ -477,18 +637,24 @@
             </tr>
           </table>
           <div class="rule-box">
-            <strong>どうすべきだったか：</strong><br>
+            <strong>変形のポイント：</strong><br>
             ${currentProblem.ruleExplanation}
           </div>
         `;
       } else {
         incorrectCount++;
+        playSound('incorrect');
+        animateCounter('incorrect-count', 'stat-incorrect-box', 'error');
+        animateCounter('total-count', 'stat-total-box', 'error');
+
         feedbackBox.className = 'feedback incorrect';
-        feedbackTitle.textContent = '間違いです（符号・変形を確認）';
+        badge.className = 'result-badge incorrect';
+        badge.innerHTML = `<span class="result-icon">❌</span> 不正解（間違っています）`;
 
         const diff = buildDiffVisual(userVal, expectedVal);
 
         feedbackDetail.innerHTML = `
+          <div class="origin-eq-banner">元の問題: ${currentProblem.rawEq}</div>
           <table class="diff-table">
             <tr>
               <th>あなたの入力</th>
@@ -500,13 +666,13 @@
             </tr>
           </table>
           <div class="rule-box">
-            <strong>どうすべきだったか：</strong><br>
+            <strong>変形のポイント：</strong><br>
             ${currentProblem.ruleExplanation}
           </div>
         `;
       }
 
-      // 成績更新
+      // カウント数値の反映
       document.getElementById('total-count').textContent = totalQuestions;
       document.getElementById('correct-count').textContent = correctCount;
       document.getElementById('incorrect-count').textContent = incorrectCount;

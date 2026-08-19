@@ -31,7 +31,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 20px;
+      padding: 12px;
     }
 
     .container {
@@ -40,14 +40,14 @@
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 640px;
-      padding: 28px;
+      padding: 20px;
       position: relative;
     }
 
     h1 {
-      font-size: 1.4rem;
+      font-size: 1.25rem;
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       color: #0f172a;
     }
 
@@ -55,12 +55,12 @@
     .stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: 8px;
       background-color: #f1f5f9;
       border: 2px solid var(--border);
-      padding: 12px;
+      padding: 10px 8px;
       border-radius: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       text-align: center;
     }
 
@@ -71,14 +71,14 @@
     }
 
     .stat-label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: bold;
       color: #64748b;
       margin-bottom: 2px;
     }
 
     .stat-value {
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       font-weight: 900;
       display: inline-block;
       transition: transform 0.2s ease;
@@ -121,23 +121,23 @@
       background-color: #ffffff;
       border: 3px solid var(--border);
       border-radius: 16px;
-      padding: 24px;
+      padding: 18px 12px;
       text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .instruction {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #334155;
       margin-bottom: 16px;
     }
 
+    .instruction {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 12px;
+    }
+
     .equation-display {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 900;
-      letter-spacing: 2px;
-      margin-bottom: 20px;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
       color: #0f172a;
     }
 
@@ -145,15 +145,15 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 10px;
-      font-size: 1.8rem;
+      gap: 8px;
+      font-size: 1.5rem;
       font-weight: bold;
     }
 
     input[type="text"] {
-      font-size: 1.6rem;
-      padding: 10px 16px;
-      width: 220px;
+      font-size: 1.3rem;
+      padding: 8px 12px;
+      width: 170px;
       border: 3px solid var(--border);
       border-radius: 10px;
       text-align: center;
@@ -170,15 +170,15 @@
     .btn {
       display: block;
       width: 100%;
-      padding: 16px;
-      font-size: 1.25rem;
+      padding: 14px;
+      font-size: 1.1rem;
       font-weight: 800;
       color: #ffffff;
       background-color: var(--primary);
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      margin-top: 20px;
+      margin-top: 16px;
       transition: transform 0.1s, opacity 0.2s, background-color 0.2s;
     }
 
@@ -227,10 +227,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      font-size: 1.8rem;
+      gap: 8px;
+      font-size: 1.5rem;
       font-weight: 900;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .result-badge.correct { color: var(--success); }
@@ -238,25 +238,25 @@
     .result-badge.warning { color: var(--warning); }
 
     .result-icon {
-      font-size: 2.5rem;
+      font-size: 2rem;
       line-height: 1;
     }
 
     .origin-eq-banner {
       background: #f1f5f9;
       border: 2px solid #cbd5e1;
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 8px;
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       font-weight: bold;
       text-align: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       color: #334155;
     }
 
     .diff-table {
       width: 100%;
-      margin: 12px 0;
+      margin: 10px 0;
       border-collapse: collapse;
       background: #ffffff;
       border-radius: 8px;
@@ -265,68 +265,112 @@
     }
 
     .diff-table th, .diff-table td {
-      padding: 12px 14px;
+      padding: 8px 10px;
       border: 1px solid #e2e8f0;
       text-align: left;
     }
 
     .diff-table th {
       background-color: #f8fafc;
-      width: 35%;
+      width: 38%;
       color: #475569;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       font-weight: 700;
     }
 
     .diff-table td {
       font-family: monospace, sans-serif;
-      font-size: 1.4rem;
+      font-size: 1.15rem;
       font-weight: bold;
+      word-break: break-all;
     }
 
-    /* 間違えた文字の赤色強調表示 */
-    .char-error {
-      color: #dc2626;
-      background-color: #fee2e2;
-      border: 2px dashed #ef4444;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-weight: 900;
-      display: inline-block;
-      margin: 0 2px;
-    }
+    @media (max-width: 480px) {
+      body {
+        padding: 8px 4px;
+      }
 
-    /* 正しい文字の緑色強調表示 */
-    .char-correct {
-      color: #16a34a;
-      background-color: #dcfce7;
-      border: 2px solid #86efac;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-weight: 900;
-      display: inline-block;
-      margin: 0 2px;
-    }
+      .container {
+        padding: 14px 10px;
+        border-radius: 14px;
+      }
 
-    .rule-box {
-      margin-top: 12px;
-      padding: 12px 16px;
-      background: #ffffff;
-      border-left: 5px solid #3b82f6;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: #1e293b;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      text-align: left;
-      line-height: 1.6;
-    }
+      h1 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+      }
 
-    .hint {
-      margin-top: 20px;
-      font-size: 0.85rem;
-      color: #64748b;
-      text-align: center;
-      line-height: 1.5;
+      .stats {
+        gap: 4px;
+        padding: 8px 4px;
+        margin-bottom: 14px;
+      }
+
+      .stat-value {
+        font-size: 1.3rem;
+      }
+
+      .problem-box {
+        padding: 14px 8px;
+        margin-bottom: 12px;
+      }
+
+      .instruction {
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+      }
+
+      .equation-display {
+        font-size: 1.6rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+      }
+
+      .input-area {
+        font-size: 1.3rem;
+        gap: 6px;
+      }
+
+      input[type="text"] {
+        width: 140px;
+        font-size: 1.2rem;
+        padding: 6px 8px;
+      }
+
+      .btn {
+        padding: 12px;
+        font-size: 1rem;
+        margin-top: 12px;
+      }
+
+      .result-badge {
+        font-size: 1.3rem;
+      }
+
+      .result-icon {
+        font-size: 1.6rem;
+      }
+
+      .diff-table th {
+        width: 40%;
+        font-size: 0.75rem;
+        padding: 6px 8px;
+      }
+
+      .diff-table td {
+        font-size: 1rem;
+        padding: 6px 8px;
+      }
+
+      .rule-box {
+        font-size: 0.85rem;
+        padding: 8px 10px;
+      }
+
+      .hint {
+        font-size: 0.78rem;
+        margin-top: 12px;
+      }
     }
   </style>
 </head>

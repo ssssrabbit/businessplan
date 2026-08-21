@@ -115,6 +115,25 @@
             </table>
           </div>
 
+          <!-- Interactive Pinfall Input Keypad -->
+          <div class="pin-input-panel">
+            <div class="pin-input-header">
+              <div class="current-turn-indicator">
+                <span class="turn-dot"></span>
+                <span class="turn-label">投球入力:</span>
+                <strong class="turn-player" id="current-player-name">田中様</strong>
+                <span class="turn-frame" id="current-frame-info">第1フレーム (1投目)</span>
+              </div>
+              <div class="pin-quick-actions">
+                <button class="pin-mini-btn" id="btn-undo-shot" title="直前の投球を取り消す">↩ 1投戻す</button>
+                <button class="pin-mini-btn" id="btn-clear-game" title="全スコアをクリアして新ゲーム開始">🗑️ スコアクリア</button>
+              </div>
+            </div>
+            <div class="pin-buttons-grid" id="pin-buttons-grid">
+              <!-- Dynamically populated by JS (0 to 10) -->
+            </div>
+          </div>
+
           <!-- Simulation Triggers Bar -->
           <div class="sim-actions-panel">
             <div class="sim-actions-header">

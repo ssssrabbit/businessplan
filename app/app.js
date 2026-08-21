@@ -8,18 +8,20 @@ const state = {
   date: '2025-12-09',
   time: '11:30',
   playerCount: 2,
-  players: [
-    { name: '田中様 (68歳)', tag: 'リーグ会員', scores: [9, '/', 'X', '', 8, 1, 9, '/', 'X', '', 9, '/', 'X', '', 8, 1, 9, '/', 'X', '9', ''], total: 168 },
-    { name: '佐藤様 (65歳)', tag: 'リーグ会員', scores: [8, 1, 9, '/', '8', 1, 9, '/', '9', 0, 8, 1, 9, '/', '8', 1, 9, '/', '8', 1, ''], total: 135 }
-  ],
+  players: [],
+  currentInput: {
+    playerIndex: 0,
+    frameIndex: 0,
+    shotIndex: 0
+  },
   activeTab: 'recommended',
-  activeCoupon: null, // { title, type, desc, note, actionText, discount, applied }
+  activeCoupon: null,
   cart: [],
   overheadMessage: { title: 'READY TO BOWL', sub: '投球してください', icon: '🎳', voucherCode: '#7842' },
   activeAction: 'default'
 };
 
-// --- Presets Data Definition ---
+// --- Presets Data Definition (with raw frame rolls) ---
 const PRESETS = {
   senior_lunch: {
     time: '11:30',
@@ -27,8 +29,38 @@ const PRESETS = {
     timeSlotName: '昼・シニアリーグ',
     playerCount: 2,
     players: [
-      { name: '田中様 (68歳)', tag: 'リーグ会員', scores: [9, '/', 'X', '', 8, 1, 9, '/', 'X', '', 9, '/', 'X', '', 8, 1, 9, '/', 'X', '9', ''], total: 168 },
-      { name: '佐藤様 (65歳)', tag: 'リーグ会員', scores: [8, 1, 9, '/', '8', 1, 9, '/', '9', 0, 8, 1, 9, '/', '8', 1, 9, '/', '8', 1, ''], total: 135 }
+      {
+        name: '田中様 (68歳)',
+        tag: 'リーグ会員',
+        frames: [
+          { rolls: [9, 1] },
+          { rolls: [10] },
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [10] },
+          { rolls: [9, 1] },
+          { rolls: [10] },
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [10, 9] }
+        ]
+      },
+      {
+        name: '佐藤様 (65歳)',
+        tag: 'リーグ会員',
+        frames: [
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [9, 0] },
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [8, 1] }
+        ]
+      }
     ]
   },
   student_afternoon: {
@@ -37,10 +69,70 @@ const PRESETS = {
     timeSlotName: '夕方・学生グループ',
     playerCount: 4,
     players: [
-      { name: 'ユウキ', tag: '高校2年', scores: ['X', '', 9, '/', 'X', '', 7, 2, 'X', '', 8, '/', 9, 0, 'X', '', 9, '/', 'X', 'X', '9'], total: 172 },
-      { name: 'レン', tag: '高校2年', scores: [8, 1, 9, 0, 7, '/', 8, 1, 9, '/', 8, 0, 'X', '', 7, 2, 8, '/', 9, 0, ''], total: 124 },
-      { name: 'ハルト', tag: '高校2年', scores: [7, 2, 8, 1, 6, 3, 7, '/', 8, 1, 9, 0, 7, 2, 8, 1, 9, 0, 8, 1, ''], total: 102 },
-      { name: 'ソウタ', tag: '高校2年', scores: ['X', '', 8, 1, 'X', '', 9, 0, 8, '/', 7, 2, 'X', '', 9, '/', 8, 1, 9, '/', '8'], total: 148 }
+      {
+        name: 'ユウキ',
+        tag: '高校2年',
+        frames: [
+          { rolls: [10] },
+          { rolls: [9, 1] },
+          { rolls: [10] },
+          { rolls: [7, 2] },
+          { rolls: [10] },
+          { rolls: [8, 2] },
+          { rolls: [9, 0] },
+          { rolls: [10] },
+          { rolls: [9, 1] },
+          { rolls: [10, 10, 9] }
+        ]
+      },
+      {
+        name: 'レン',
+        tag: '高校2年',
+        frames: [
+          { rolls: [8, 1] },
+          { rolls: [9, 0] },
+          { rolls: [7, 3] },
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [8, 0] },
+          { rolls: [10] },
+          { rolls: [7, 2] },
+          { rolls: [8, 2] },
+          { rolls: [9, 0] }
+        ]
+      },
+      {
+        name: 'ハルト',
+        tag: '高校2年',
+        frames: [
+          { rolls: [7, 2] },
+          { rolls: [8, 1] },
+          { rolls: [6, 3] },
+          { rolls: [7, 3] },
+          { rolls: [8, 1] },
+          { rolls: [9, 0] },
+          { rolls: [7, 2] },
+          { rolls: [8, 1] },
+          { rolls: [9, 0] },
+          { rolls: [8, 1] }
+        ]
+      },
+      {
+        name: 'ソウタ',
+        tag: '高校2年',
+        frames: [
+          { rolls: [10] },
+          { rolls: [8, 1] },
+          { rolls: [10] },
+          { rolls: [9, 0] },
+          { rolls: [8, 2] },
+          { rolls: [7, 2] },
+          { rolls: [10] },
+          { rolls: [9, 1] },
+          { rolls: [8, 1] },
+          { rolls: [9, 1, 8] }
+        ]
+      }
     ]
   },
   adult_evening: {
@@ -49,10 +141,70 @@ const PRESETS = {
     timeSlotName: '夜間・社会人宴会',
     playerCount: 4,
     players: [
-      { name: '山田部長', tag: '会社団体', scores: ['X', '', 'X', '', 9, '/', 8, 1, 'X', '', 9, '/', 8, 1, 'X', '', 9, '/', 'X', '9', ''], total: 165 },
-      { name: '鈴木課長', tag: '会社団体', scores: [8, 1, 9, '/', 'X', '', 8, 1, 9, 0, 8, '/', 7, 2, 'X', '', 8, 1, 9, 0, ''], total: 128 },
-      { name: '高橋主任', tag: '会社団体', scores: [9, 0, 8, 1, 7, 2, 8, '/', 9, 0, 7, 2, 8, 1, 9, 0, 8, 1, 7, 2, ''], total: 98 },
-      { name: '渡辺', tag: '会社団体', scores: ['X', '', 9, '/', 8, 1, 'X', '', 9, 0, 8, 1, 9, '/', 8, 1, 'X', '', 'X', '8', '1'], total: 152 }
+      {
+        name: '山田部長',
+        tag: '会社団体',
+        frames: [
+          { rolls: [10] },
+          { rolls: [10] },
+          { rolls: [9, 1] },
+          { rolls: [8, 1] },
+          { rolls: [10] },
+          { rolls: [9, 1] },
+          { rolls: [8, 1] },
+          { rolls: [10] },
+          { rolls: [9, 1] },
+          { rolls: [10, 9] }
+        ]
+      },
+      {
+        name: '鈴木課長',
+        tag: '会社団体',
+        frames: [
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [10] },
+          { rolls: [8, 1] },
+          { rolls: [9, 0] },
+          { rolls: [8, 2] },
+          { rolls: [7, 2] },
+          { rolls: [10] },
+          { rolls: [8, 1] },
+          { rolls: [9, 0] }
+        ]
+      },
+      {
+        name: '高橋主任',
+        tag: '会社団体',
+        frames: [
+          { rolls: [9, 0] },
+          { rolls: [8, 1] },
+          { rolls: [7, 2] },
+          { rolls: [8, 2] },
+          { rolls: [9, 0] },
+          { rolls: [7, 2] },
+          { rolls: [8, 1] },
+          { rolls: [9, 0] },
+          { rolls: [8, 1] },
+          { rolls: [7, 2] }
+        ]
+      },
+      {
+        name: '渡辺',
+        tag: '会社団体',
+        frames: [
+          { rolls: [10] },
+          { rolls: [9, 1] },
+          { rolls: [8, 1] },
+          { rolls: [10] },
+          { rolls: [9, 0] },
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [8, 1] },
+          { rolls: [10] },
+          { rolls: [10, 8, 1] }
+        ]
+      }
     ]
   },
   family_weekend: {
@@ -61,17 +213,60 @@ const PRESETS = {
     timeSlotName: '休日・ファミリー',
     playerCount: 3,
     players: [
-      { name: 'お父さん', tag: '一般', scores: ['X', '', 9, '/', 8, 1, 'X', '', 9, 0, 8, '/', 7, 2, 8, 1, 9, '/', 'X', '8', '1'], total: 142 },
-      { name: 'お母さん', tag: '一般', scores: [7, 2, 8, 1, 9, 0, 8, 1, 7, 2, 8, '/', 9, 0, 8, 1, 7, 2, 8, 1, ''], total: 104 },
-      { name: 'ゆうと(7才)', tag: 'キッズ', scores: ['G', 'G', 4, 2, 'G', 3, 5, 1, 'G', 'G', 3, 2, 4, 1, 'G', 2, 3, 1, 4, 2, ''], total: 37 }
+      {
+        name: 'お父さん',
+        tag: '一般',
+        frames: [
+          { rolls: [10] },
+          { rolls: [9, 1] },
+          { rolls: [8, 1] },
+          { rolls: [10] },
+          { rolls: [9, 0] },
+          { rolls: [8, 2] },
+          { rolls: [7, 2] },
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [10, 8, 1] }
+        ]
+      },
+      {
+        name: 'お母さん',
+        tag: '一般',
+        frames: [
+          { rolls: [7, 2] },
+          { rolls: [8, 1] },
+          { rolls: [9, 0] },
+          { rolls: [8, 1] },
+          { rolls: [7, 2] },
+          { rolls: [8, 2] },
+          { rolls: [9, 0] },
+          { rolls: [8, 1] },
+          { rolls: [7, 2] },
+          { rolls: [8, 1] }
+        ]
+      },
+      {
+        name: 'ゆうと(7才)',
+        tag: 'キッズ',
+        frames: [
+          { rolls: [0, 0] },
+          { rolls: [4, 2] },
+          { rolls: [0, 3] },
+          { rolls: [5, 1] },
+          { rolls: [0, 0] },
+          { rolls: [3, 2] },
+          { rolls: [4, 1] },
+          { rolls: [0, 2] },
+          { rolls: [3, 1] },
+          { rolls: [4, 2] }
+        ]
+      }
     ]
   }
 };
 
 // --- Segment-Specific Event & Coupon Rules ---
-// 客層・時間帯ごとに発火可能なイベント・クーポン定義
 const SEGMENT_EVENT_RULES = {
-  // ① 昼・シニアリーグ
   senior_lunch: {
     strike: {
       buttonLabel: '🎳 ストライク！',
@@ -143,7 +338,6 @@ const SEGMENT_EVENT_RULES = {
     }
   },
 
-  // ② 夕方・学生グループ
   student_afternoon: {
     strike: {
       buttonLabel: '🎳 ストライク！',
@@ -229,7 +423,6 @@ const SEGMENT_EVENT_RULES = {
     }
   },
 
-  // ③ 夜間・社会人宴会
   adult_evening: {
     strike: {
       buttonLabel: '🎳 ストライク！',
@@ -301,7 +494,6 @@ const SEGMENT_EVENT_RULES = {
     }
   },
 
-  // ④ 休日・ファミリー
   family_weekend: {
     strike: {
       buttonLabel: '🎳 ストライク！',
@@ -595,6 +787,84 @@ function generateQRCode(elementId, text, size = 72) {
   container.appendChild(img);
 }
 
+// --- Official Bowling Score Calculation Engine ---
+function calculateBowlingScore(player) {
+  if (!player.frames) player.frames = Array.from({ length: 10 }, () => ({ rolls: [] }));
+
+  // Collect chronological rolls with metadata
+  const allRolls = [];
+  player.frames.forEach((f, fIdx) => {
+    f.rolls.forEach(r => allRolls.push({ roll: r, frameIdx: fIdx }));
+  });
+
+  let rollIdx = 0;
+  let runningTotal = 0;
+  const frameTotals = [];
+
+  for (let f = 0; f < 10; f++) {
+    const frame = player.frames[f] || { rolls: [] };
+    const r1 = frame.rolls[0];
+
+    if (f < 9) { // Frames 1 to 9
+      if (r1 === undefined) {
+        frameTotals.push(null);
+        continue;
+      }
+
+      if (r1 === 10) { // Strike
+        const next1 = allRolls[rollIdx + 1]?.roll;
+        const next2 = allRolls[rollIdx + 2]?.roll;
+        rollIdx += 1;
+        if (next1 !== undefined && next2 !== undefined) {
+          runningTotal += 10 + next1 + next2;
+          frameTotals.push(runningTotal);
+        } else {
+          frameTotals.push(null); // Waiting for subsequent rolls
+        }
+      } else {
+        const r2 = frame.rolls[1];
+        if (r2 === undefined) {
+          rollIdx += 1;
+          frameTotals.push(null);
+        } else if (r1 + r2 === 10) { // Spare
+          const next1 = allRolls[rollIdx + 2]?.roll;
+          rollIdx += 2;
+          if (next1 !== undefined) {
+            runningTotal += 10 + next1;
+            frameTotals.push(runningTotal);
+          } else {
+            frameTotals.push(null);
+          }
+        } else { // Open frame
+          runningTotal += r1 + r2;
+          rollIdx += 2;
+          frameTotals.push(runningTotal);
+        }
+      }
+    } else { // 10th Frame
+      if (frame.rolls.length === 0) {
+        frameTotals.push(null);
+      } else {
+        const frameSum = frame.rolls.reduce((sum, r) => sum + r, 0);
+        const r2 = frame.rolls[1];
+        const isComplete = (r1 < 10 && (r1 + (r2 || 0) < 10) && frame.rolls.length >= 2) || (frame.rolls.length === 3);
+        if (isComplete) {
+          runningTotal += frameSum;
+          frameTotals.push(runningTotal);
+        } else {
+          frameTotals.push(runningTotal + frameSum);
+        }
+      }
+    }
+  }
+
+  // Calculate final total (either last calculated total or sum of all available pins)
+  const validTotals = frameTotals.filter(t => t !== null);
+  const total = validTotals.length > 0 ? validTotals[validTotals.length - 1] : 0;
+
+  return { frameTotals, total };
+}
+
 // --- Action Buttons Dynamic Filter per Customer Segment ---
 function updateActionButtons() {
   const currentRules = SEGMENT_EVENT_RULES[state.preset] || {};
@@ -611,7 +881,6 @@ function updateActionButtons() {
 
     const rule = currentRules[actionKey];
     if (rule) {
-      // Event is active for this customer segment
       btn.style.display = 'inline-flex';
       btn.disabled = false;
       btn.classList.remove('btn-inactive');
@@ -620,7 +889,6 @@ function updateActionButtons() {
       }
       activeCount++;
     } else {
-      // Event is NOT active for this customer segment -> Hide button
       btn.style.display = 'none';
       btn.disabled = true;
       btn.classList.add('btn-inactive');
@@ -679,7 +947,7 @@ function bindEvents() {
     });
   });
 
-  // Simulation Action Buttons
+  // Simulation Action Buttons (shortcuts)
   document.querySelectorAll('#action-buttons-group .action-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const action = btn.dataset.action;
@@ -690,6 +958,10 @@ function bindEvents() {
       }
     });
   });
+
+  // Undo and Clear Buttons
+  document.getElementById('btn-undo-shot').addEventListener('click', () => undoLastRoll());
+  document.getElementById('btn-clear-game').addEventListener('click', () => clearGameScores());
 
   // Order submit
   document.getElementById('btn-submit-order').addEventListener('click', () => submitOrder());
@@ -712,7 +984,18 @@ function applyPreset(presetKey) {
   state.cart = [];
   state.activeAction = 'default';
 
+  // Ensure all players have full frames structure
+  state.players.forEach(player => {
+    if (!player.frames) {
+      player.frames = Array.from({ length: 10 }, () => ({ rolls: [] }));
+    }
+  });
+
+  // Set input cursor to the first uncompleted frame / end
+  findNextInputPosition();
+
   // Update Inputs
+  document.getElementById('date-select').value = state.date;
   document.getElementById('time-select').value = p.time;
   document.getElementById('tablet-time-tag').innerText = p.timeTag;
   document.getElementById('tablet-clock').innerText = p.time;
@@ -728,6 +1011,7 @@ function applyPreset(presetKey) {
 
   // Re-render
   renderScoreboard();
+  renderPinKeypad();
   renderMenu();
   renderPushCoupon();
   renderOverheadMonitor('READY TO BOWL', '投球してください', '🎳');
@@ -751,13 +1035,25 @@ function setPlayerCount(count) {
       state.players.push({
         name: `プレイヤー ${i + 1}`,
         tag: '一般',
-        scores: [8, 1, 9, '/', 'X', '', 7, 2, 8, '/', 9, 0, 8, 1, 9, '/', 8, 1, 9, 0, ''],
-        total: 130 + i * 5
+        frames: [
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [10] },
+          { rolls: [7, 2] },
+          { rolls: [8, 2] },
+          { rolls: [9, 0] },
+          { rolls: [8, 1] },
+          { rolls: [9, 1] },
+          { rolls: [8, 1] },
+          { rolls: [9, 0] }
+        ]
       });
     }
   }
 
+  findNextInputPosition();
   renderScoreboard();
+  renderPinKeypad();
   renderMenu();
   renderPushCoupon();
   showToast(`👥 登録人数を ${count}名 に変更しました`, 'toast-success');
@@ -799,62 +1095,457 @@ function updateDateDisplay() {
   }
 }
 
-// --- Scoreboard Rendering ---
+// --- Scoreboard Rendering & Active Highlight ---
 
 function renderScoreboard() {
   const tbody = document.getElementById('scoreboard-body');
   tbody.innerHTML = '';
 
   state.players.forEach((p, pIdx) => {
+    const { frameTotals, total } = calculateBowlingScore(p);
+    p.total = total;
+
     const tr = document.createElement('tr');
+    const isPlayerActive = pIdx === state.currentInput.playerIndex;
 
     // Player name cell
     const tdPlayer = document.createElement('td');
-    tdPlayer.className = 'player-name-cell';
+    tdPlayer.className = `player-name-cell ${isPlayerActive ? 'active-player-cell' : ''}`;
     tdPlayer.innerHTML = `
       <span class="p-name">${p.name}</span>
       <span class="p-tag">${p.tag}</span>
     `;
+    tdPlayer.addEventListener('click', () => {
+      state.currentInput.playerIndex = pIdx;
+      findNextInputPositionForPlayer(pIdx);
+      renderScoreboard();
+      renderPinKeypad();
+    });
     tr.appendChild(tdPlayer);
 
     // 10 Frames
-    let runningTotal = 0;
-    for (let f = 1; f <= 10; f++) {
+    for (let f = 0; f < 10; f++) {
+      const frame = p.frames[f] || { rolls: [] };
       const tdFrame = document.createElement('td');
-      tdFrame.className = 'frame-cell';
+      const isFrameActive = isPlayerActive && f === state.currentInput.frameIndex;
+      tdFrame.className = `frame-cell ${isFrameActive ? 'active-frame' : ''}`;
 
-      const s1 = p.scores[(f - 1) * 2] !== undefined ? p.scores[(f - 1) * 2] : '';
-      const s2 = p.scores[(f - 1) * 2 + 1] !== undefined ? p.scores[(f - 1) * 2 + 1] : '';
-      const s3 = f === 10 && p.scores[20] !== undefined ? p.scores[20] : '';
+      // Format shot marks
+      let shot1Html = '';
+      let shot2Html = '';
+      let shot3Html = '';
 
-      const s1Class = s1 === 'X' ? 'strike' : s1 === 'G' ? 'gutter' : '';
-      const s2Class = s2 === '/' ? 'spare' : s2 === 'G' ? 'gutter' : '';
+      const r1 = frame.rolls[0];
+      const r2 = frame.rolls[1];
+      const r3 = frame.rolls[2];
 
-      // Dummy calculated running scores for visual realism
-      runningTotal += (s1 === 'X' ? 20 : s1 === 'G' ? 0 : Number(s1) || 5) + (s2 === '/' ? 10 : s2 === 'G' ? 0 : Number(s2) || 4);
-      if (f === 10) runningTotal = p.total;
+      if (f < 9) { // Frames 1 to 9
+        if (r1 !== undefined) {
+          if (r1 === 10) {
+            shot1Html = `<span class="shot strike">X</span>`;
+            shot2Html = `<span class="shot"></span>`;
+          } else {
+            shot1Html = `<span class="shot ${r1 === 0 ? 'gutter' : ''}">${r1 === 0 ? 'G' : r1}</span>`;
+            if (r2 !== undefined) {
+              if (r1 + r2 === 10) {
+                shot2Html = `<span class="shot spare">/</span>`;
+              } else {
+                shot2Html = `<span class="shot ${r2 === 0 ? 'gutter' : ''}">${r2 === 0 ? 'G' : r2}</span>`;
+              }
+            } else {
+              shot2Html = `<span class="shot ${isFrameActive && state.currentInput.shotIndex === 1 ? 'active-shot' : ''}"></span>`;
+            }
+          }
+        } else {
+          shot1Html = `<span class="shot ${isFrameActive && state.currentInput.shotIndex === 0 ? 'active-shot' : ''}"></span>`;
+          shot2Html = `<span class="shot"></span>`;
+        }
+      } else { // 10th Frame
+        if (r1 !== undefined) {
+          shot1Html = `<span class="shot ${r1 === 10 ? 'strike' : r1 === 0 ? 'gutter' : ''}">${r1 === 10 ? 'X' : r1 === 0 ? 'G' : r1}</span>`;
+          if (r2 !== undefined) {
+            if (r1 < 10 && r1 + r2 === 10) {
+              shot2Html = `<span class="shot spare">/</span>`;
+            } else {
+              shot2Html = `<span class="shot ${r2 === 10 ? 'strike' : r2 === 0 ? 'gutter' : ''}">${r2 === 10 ? 'X' : r2 === 0 ? 'G' : r2}</span>`;
+            }
+            if (r3 !== undefined) {
+              shot3Html = `<span class="shot ${r3 === 10 ? 'strike' : r3 === 0 ? 'gutter' : ''}">${r3 === 10 ? 'X' : r3 === 0 ? 'G' : r3}</span>`;
+            } else {
+              const allows3 = (r1 === 10 || r1 + r2 === 10);
+              if (allows3) {
+                shot3Html = `<span class="shot ${isFrameActive && state.currentInput.shotIndex === 2 ? 'active-shot' : ''}"></span>`;
+              }
+            }
+          } else {
+            shot2Html = `<span class="shot ${isFrameActive && state.currentInput.shotIndex === 1 ? 'active-shot' : ''}"></span>`;
+          }
+        } else {
+          shot1Html = `<span class="shot ${isFrameActive && state.currentInput.shotIndex === 0 ? 'active-shot' : ''}"></span>`;
+          shot2Html = `<span class="shot"></span>`;
+        }
+      }
+
+      const frameTotalText = frameTotals[f] !== null && frameTotals[f] !== undefined ? frameTotals[f] : '';
 
       tdFrame.innerHTML = `
         <div class="frame-box">
           <div class="frame-shots">
-            <span class="shot ${s1Class}">${s1}</span>
-            <span class="shot ${s2Class}">${s2}</span>
-            ${f === 10 && s3 !== '' ? `<span class="shot">${s3}</span>` : ''}
+            ${shot1Html}
+            ${shot2Html}
+            ${f === 9 ? (shot3Html || '<span class="shot"></span>') : ''}
           </div>
-          <div class="frame-total">${f <= 8 || f === 10 ? runningTotal : ''}</div>
+          <div class="frame-total">${frameTotalText}</div>
         </div>
       `;
+
+      // Allow clicking on any frame to set active input
+      tdFrame.addEventListener('click', () => {
+        state.currentInput.playerIndex = pIdx;
+        state.currentInput.frameIndex = f;
+        state.currentInput.shotIndex = frame.rolls.length;
+        if (f < 9 && frame.rolls[0] === 10) state.currentInput.shotIndex = 0; // Already strike
+        renderScoreboard();
+        renderPinKeypad();
+      });
+
       tr.appendChild(tdFrame);
     }
 
     // Total Score Cell
     const tdTotal = document.createElement('td');
     tdTotal.className = 'col-total';
-    tdTotal.innerText = p.total;
+    tdTotal.innerText = total;
     tr.appendChild(tdTotal);
 
     tbody.appendChild(tr);
   });
+}
+
+// --- Pin Keypad Rendering & Interaction ---
+
+function renderPinKeypad() {
+  const grid = document.getElementById('pin-buttons-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const { playerIndex, frameIndex, shotIndex } = state.currentInput;
+  const player = state.players[playerIndex];
+  const frame = player ? (player.frames[frameIndex] || { rolls: [] }) : { rolls: [] };
+
+  // Determine maximum available pins
+  let maxPins = 10;
+  let isSparePossible = false;
+  let sparePins = -1;
+
+  if (frameIndex < 9) {
+    if (shotIndex === 1) {
+      const r1 = frame.rolls[0] || 0;
+      maxPins = 10 - r1;
+      isSparePossible = true;
+      sparePins = maxPins;
+    }
+  } else { // 10th Frame
+    if (shotIndex === 1) {
+      const r1 = frame.rolls[0] || 0;
+      if (r1 < 10) {
+        maxPins = 10 - r1;
+        isSparePossible = true;
+        sparePins = maxPins;
+      } else {
+        maxPins = 10;
+      }
+    } else if (shotIndex === 2) {
+      const r1 = frame.rolls[0] || 0;
+      const r2 = frame.rolls[1] || 0;
+      if (r1 === 10 && r2 < 10) {
+        maxPins = 10 - r2;
+        isSparePossible = true;
+        sparePins = maxPins;
+      } else {
+        maxPins = 10;
+      }
+    }
+  }
+
+  // Update Turn Info Header
+  const playerNameEl = document.getElementById('current-player-name');
+  const frameInfoEl = document.getElementById('current-frame-info');
+  if (player && playerNameEl && frameInfoEl) {
+    playerNameEl.innerText = player.name;
+    frameInfoEl.innerText = `第${frameIndex + 1}フレーム (${shotIndex + 1}投目)`;
+  }
+
+  // Render 0 to 10 Pin Buttons
+  for (let pin = 0; pin <= 10; pin++) {
+    const btn = document.createElement('button');
+    const isEnabled = pin <= maxPins;
+    btn.className = 'pin-btn';
+    btn.disabled = !isEnabled;
+
+    let mainLabel = `${pin}`;
+    let subLabel = `${pin}本`;
+
+    if (pin === 0) {
+      btn.classList.add('pin-gutter-btn');
+      mainLabel = 'G';
+      subLabel = 'ガター';
+    } else if (pin === 10 && (shotIndex === 0 || (frameIndex === 9 && (frame.rolls[shotIndex - 1] === 10 || frame.rolls[0] + frame.rolls[1] === 10)))) {
+      btn.classList.add('pin-strike-btn');
+      mainLabel = 'X';
+      subLabel = 'ストライク';
+    } else if (isSparePossible && pin === sparePins) {
+      btn.classList.add('pin-spare-btn');
+      mainLabel = '/';
+      subLabel = 'スペア';
+    }
+
+    btn.innerHTML = `
+      <span>${mainLabel}</span>
+      <span class="pin-sub">${subLabel}</span>
+    `;
+
+    btn.addEventListener('click', () => recordRoll(pin));
+    grid.appendChild(btn);
+  }
+}
+
+// --- Record Roll Action & Automated Event Triggering ---
+
+function recordRoll(pins) {
+  const { playerIndex, frameIndex, shotIndex } = state.currentInput;
+  const player = state.players[playerIndex];
+  if (!player) return;
+
+  if (!player.frames[frameIndex]) {
+    player.frames[frameIndex] = { rolls: [] };
+  }
+
+  // Insert or overwrite the roll
+  player.frames[frameIndex].rolls[shotIndex] = pins;
+
+  // --- Automated Event Triggers Detection ---
+  checkAutomaticEventTriggers(player, pins, frameIndex, shotIndex);
+
+  // Advance to next shot or player
+  advanceTurn(pins);
+
+  renderScoreboard();
+  renderPinKeypad();
+}
+
+function checkAutomaticEventTriggers(player, pins, frameIndex, shotIndex) {
+  const currentRules = SEGMENT_EVENT_RULES[state.preset] || {};
+
+  // 1. Strike or Turkey Detection
+  if (pins === 10) {
+    let consecutiveStrikes = 0;
+    for (let f = frameIndex; f >= 0; f--) {
+      const fRolls = player.frames[f]?.rolls || [];
+      if (fRolls.includes(10)) {
+        consecutiveStrikes++;
+      } else {
+        break;
+      }
+    }
+
+    if (consecutiveStrikes >= 3 && currentRules.turkey) {
+      triggerAction('turkey');
+      return;
+    } else if (currentRules.strike) {
+      triggerAction('strike');
+      return;
+    }
+  }
+
+  // 2. Gutter Detection (2 consecutive gutters)
+  if (pins === 0) {
+    const fRolls = player.frames[frameIndex]?.rolls || [];
+    const prevRollInFrame = shotIndex > 0 ? fRolls[shotIndex - 1] : null;
+    const prevFrameRolls = frameIndex > 0 ? player.frames[frameIndex - 1]?.rolls : [];
+    const prevFrameLastRoll = prevFrameRolls?.length > 0 ? prevFrameRolls[prevFrameRolls.length - 1] : null;
+
+    if ((prevRollInFrame === 0 || prevFrameLastRoll === 0) && currentRules.gutter) {
+      triggerAction('gutter');
+      return;
+    }
+  }
+
+  // 3. Easter Egg Score Checks (Date, Zoro-me, Just 100)
+  const { total } = calculateBowlingScore(player);
+  const parts = state.date.split('-');
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+  const targetDateScore = parseInt(`${month}${day < 10 ? '0' + day : day}`, 10);
+
+  if (total === targetDateScore && currentRules.date_easteregg) {
+    triggerAction('date_easteregg');
+    return;
+  } else if ((total === 111 || total === 222) && currentRules.zoro_easteregg) {
+    triggerAction('zoro_easteregg');
+    return;
+  } else if (total === 100 && currentRules.just_easteregg) {
+    triggerAction('just_easteregg');
+    return;
+  }
+
+  // 4. Game Over (10th Frame completion)
+  const allCompleted = state.players.every(p => {
+    const f10 = p.frames[9]?.rolls || [];
+    if (f10.length === 0) return false;
+    const r1 = f10[0];
+    const r2 = f10[1];
+    if (r1 < 10 && r1 + (r2 || 0) < 10) return f10.length >= 2;
+    return f10.length === 3;
+  });
+
+  if (allCompleted && currentRules.gameover_dining) {
+    triggerAction('gameover_dining');
+  }
+}
+
+function advanceTurn(pins) {
+  const { playerIndex, frameIndex, shotIndex } = state.currentInput;
+  const player = state.players[playerIndex];
+  const totalPlayers = state.players.length;
+
+  if (frameIndex < 9) { // Frames 1 to 9
+    if (pins === 10 || shotIndex === 1) { // Frame is finished for this player
+      if (playerIndex + 1 < totalPlayers) {
+        state.currentInput.playerIndex += 1;
+        state.currentInput.shotIndex = 0;
+      } else {
+        state.currentInput.playerIndex = 0;
+        state.currentInput.frameIndex += 1;
+        state.currentInput.shotIndex = 0;
+      }
+    } else {
+      state.currentInput.shotIndex = 1;
+    }
+  } else { // 10th Frame
+    const f10 = player.frames[9].rolls;
+    const r1 = f10[0];
+    const r2 = f10[1];
+    const allows3 = (r1 === 10 || r1 + (r2 || 0) === 10);
+    const isPlayer10thFinished = (!allows3 && f10.length >= 2) || (allows3 && f10.length >= 3);
+
+    if (isPlayer10thFinished) {
+      if (playerIndex + 1 < totalPlayers) {
+        state.currentInput.playerIndex += 1;
+        state.currentInput.shotIndex = 0;
+      }
+    } else {
+      state.currentInput.shotIndex = f10.length;
+    }
+  }
+}
+
+function findNextInputPosition() {
+  for (let f = 0; f < 10; f++) {
+    for (let p = 0; p < state.players.length; p++) {
+      const player = state.players[p];
+      const frame = player.frames[f] || { rolls: [] };
+      if (f < 9) {
+        if (frame.rolls.length === 0) {
+          state.currentInput = { playerIndex: p, frameIndex: f, shotIndex: 0 };
+          return;
+        } else if (frame.rolls.length === 1 && frame.rolls[0] < 10) {
+          state.currentInput = { playerIndex: p, frameIndex: f, shotIndex: 1 };
+          return;
+        }
+      } else {
+        const r1 = frame.rolls[0];
+        const r2 = frame.rolls[1];
+        const allows3 = (r1 === 10 || (r1 !== undefined && r2 !== undefined && r1 + r2 === 10));
+        if (frame.rolls.length === 0) {
+          state.currentInput = { playerIndex: p, frameIndex: 9, shotIndex: 0 };
+          return;
+        } else if (frame.rolls.length === 1) {
+          state.currentInput = { playerIndex: p, frameIndex: 9, shotIndex: 1 };
+          return;
+        } else if (frame.rolls.length === 2 && allows3) {
+          state.currentInput = { playerIndex: p, frameIndex: 9, shotIndex: 2 };
+          return;
+        }
+      }
+    }
+  }
+  // If all completed, park at last player frame 10
+  state.currentInput = { playerIndex: state.players.length - 1, frameIndex: 9, shotIndex: 0 };
+}
+
+function findNextInputPositionForPlayer(pIdx) {
+  const player = state.players[pIdx];
+  for (let f = 0; f < 10; f++) {
+    const frame = player.frames[f] || { rolls: [] };
+    if (f < 9) {
+      if (frame.rolls.length === 0) {
+        state.currentInput.frameIndex = f;
+        state.currentInput.shotIndex = 0;
+        return;
+      } else if (frame.rolls.length === 1 && frame.rolls[0] < 10) {
+        state.currentInput.frameIndex = f;
+        state.currentInput.shotIndex = 1;
+        return;
+      }
+    } else {
+      const r1 = frame.rolls[0];
+      const r2 = frame.rolls[1];
+      const allows3 = (r1 === 10 || (r1 !== undefined && r2 !== undefined && r1 + r2 === 10));
+      if (frame.rolls.length < 2 || (allows3 && frame.rolls.length < 3)) {
+        state.currentInput.frameIndex = 9;
+        state.currentInput.shotIndex = frame.rolls.length;
+        return;
+      }
+    }
+  }
+  state.currentInput.frameIndex = 9;
+  state.currentInput.shotIndex = 0;
+}
+
+function undoLastRoll() {
+  const { playerIndex, frameIndex } = state.currentInput;
+  const player = state.players[playerIndex];
+  const frame = player?.frames[frameIndex];
+
+  if (frame && frame.rolls.length > 0) {
+    frame.rolls.pop();
+    state.currentInput.shotIndex = frame.rolls.length;
+  } else {
+    // Look for previous roll
+    if (playerIndex > 0) {
+      state.currentInput.playerIndex -= 1;
+    } else if (frameIndex > 0) {
+      state.currentInput.frameIndex -= 1;
+      state.currentInput.playerIndex = state.players.length - 1;
+    }
+    const prevPlayer = state.players[state.currentInput.playerIndex];
+    const prevFrame = prevPlayer?.frames[state.currentInput.frameIndex];
+    if (prevFrame && prevFrame.rolls.length > 0) {
+      prevFrame.rolls.pop();
+      state.currentInput.shotIndex = prevFrame.rolls.length;
+    }
+  }
+
+  renderScoreboard();
+  renderPinKeypad();
+  showToast('↩ 1投前のスコアを取り消しました', 'toast-success');
+}
+
+function clearGameScores() {
+  state.players.forEach(p => {
+    p.frames = Array.from({ length: 10 }, () => ({ rolls: [] }));
+  });
+  state.currentInput = { playerIndex: 0, frameIndex: 0, shotIndex: 0 };
+  state.activeCoupon = null;
+  state.activeAction = 'default';
+
+  renderScoreboard();
+  renderPinKeypad();
+  renderPushCoupon();
+  renderOverheadMonitor('NEW GAME', '新ゲームを開始します。1投目をどうぞ！', '🎳');
+  renderRationale('default');
+  showToast('🗑️ スコアボードをクリアしました。1投目を入力してください', 'toast-success');
 }
 
 // --- Menu Rendering ---
@@ -898,7 +1589,6 @@ function renderMenu() {
 function renderPushCoupon() {
   const container = document.getElementById('coupon-push-banner');
   if (!state.activeCoupon) {
-    // Default Group Suggestion if 3+ players
     if (state.playerCount >= 3) {
       container.innerHTML = `
         <div class="push-coupon-card type-special">
@@ -984,44 +1674,49 @@ function triggerAction(actionKey) {
 
   state.activeAction = actionKey;
 
-  // Apply score simulations
+  // Apply score simulation shortcuts if triggered via button
+  const p0 = state.players[0];
   switch (actionKey) {
     case 'strike':
-      state.players[0].scores[18] = 'X';
-      state.players[0].total += 10;
+      if (p0 && p0.frames[9]) {
+        p0.frames[9].rolls = [10, 10];
+      }
       break;
 
     case 'turkey':
-      state.players[0].scores[16] = 'X';
-      state.players[0].scores[18] = 'X';
-      state.players[0].scores[19] = 'X';
-      state.players[0].total = 215;
+      if (p0) {
+        p0.frames[7] = { rolls: [10] };
+        p0.frames[8] = { rolls: [10] };
+        p0.frames[9] = { rolls: [10, 10, 10] };
+      }
       break;
 
     case 'gutter':
-      if (state.players[2]) {
-        state.players[2].scores[18] = 'G';
-        state.players[2].scores[19] = 'G';
-      } else {
-        state.players[0].scores[18] = 'G';
-        state.players[0].scores[19] = 'G';
+      const targetP = state.players[2] || state.players[0];
+      if (targetP && targetP.frames[9]) {
+        targetP.frames[9].rolls = [0, 0];
       }
       break;
 
     case 'date_easteregg':
-      state.players[0].total = 129;
+      if (p0) {
+        p0.frames[9] = { rolls: [9, 0] };
+      }
       break;
 
     case 'zoro_easteregg':
-      state.players[0].total = 111;
+      if (p0) {
+        p0.frames[9] = { rolls: [1, 0] };
+      }
       break;
 
     case 'just_easteregg':
-      state.players[0].total = 100;
+      if (p0) {
+        p0.frames[9] = { rolls: [0, 0] };
+      }
       break;
 
     case 'birthday_easteregg':
-      // Keeps score unchanged
       break;
 
     case 'gameover_dining':
@@ -1035,6 +1730,7 @@ function triggerAction(actionKey) {
   };
 
   renderScoreboard();
+  renderPinKeypad();
   renderOverheadMonitor(
     rule.overhead?.title || 'SPECIAL EVENT',
     rule.overhead?.sub || 'おめでとうございます！',

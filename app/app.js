@@ -68,6 +68,312 @@ const PRESETS = {
   }
 };
 
+// --- Segment-Specific Event & Coupon Rules ---
+// 客層・時間帯ごとに発火可能なイベント・クーポン定義
+const SEGMENT_EVENT_RULES = {
+  // ① 昼・シニアリーグ
+  senior_lunch: {
+    strike: {
+      buttonLabel: '🎳 ストライク！',
+      title: '🎳 STRIKE BONUS! 挽きたて珈琲 or ミニデザート 100円引',
+      desc: 'お見事です！ゲーム後のランチ・喫茶で使える限定割引です。',
+      icon: '☕',
+      typeClass: 'type-special',
+      isNonImmediate: false,
+      discount: 100,
+      actionText: '珈琲値引きで注文',
+      overhead: { title: 'STRIKE!', sub: 'お見事！ナイスストライク！', icon: '🎳' },
+      toast: '🎳 ストライク達成！レーン端末に珈琲値引き特典が付与されました',
+      rationaleKey: 'strike'
+    },
+    turkey: {
+      buttonLabel: '🔥 ターキー達成！',
+      title: '🔥 ターキー達成記念！特製デザートプレート進呈',
+      desc: '3連続ストライク達成！お連れ様とシェアできるデザートプレートです。',
+      icon: '👑',
+      typeClass: 'type-special',
+      isNonImmediate: false,
+      discount: 400,
+      note: '本端末限定・発行から30分間のみ有効です。',
+      actionText: 'デザートプレートを適用',
+      overhead: { title: '🔥 TURKEY ACHIEVED! 🔥', sub: '3連続ストライク達成！プレミアム特典発動！', icon: '🦃' },
+      toast: '🔥 ターキー達成！プレミアムデザートプレート特典を付与しました',
+      rationaleKey: 'turkey'
+    },
+    date_easteregg: {
+      buttonLabel: '📅 日付スコア (129点)',
+      title: '🎉 【本日限定イースターエッグ】日付賞 (12/9 ➔ 129点達成！)',
+      desc: '本日プレイ日 [12月9日] とスコアが一致！『生パスタ 200円引き』',
+      icon: '📅',
+      typeClass: 'type-easteregg',
+      isNonImmediate: false,
+      discount: 200,
+      note: '本特典は本日日付限定の特別イースターエッグです。条件は日替わりで変化します。',
+      actionText: '生パスタ200円引で注文',
+      overhead: { title: 'SECRET EASTER EGG!', sub: '本日限定 [12月9日＝129点] ピタリ的中！', icon: '🎉' },
+      toast: '📅 日付連動イースターエッグを発見しました！',
+      rationaleKey: 'date_easteregg'
+    },
+    birthday_easteregg: {
+      buttonLabel: '🎂 誕生月ボーナス',
+      title: '🎂 【誕生月サプライズ】お誕生日おめでとうございます！',
+      desc: '誕生月のご来店感謝！『バースデーハーフドルチェ 無料プレゼント』',
+      icon: '🎂',
+      typeClass: 'type-easteregg',
+      isNonImmediate: false,
+      discount: 500,
+      note: 'お誕生月限定の特別おもてなし特典です。',
+      actionText: 'バースデードルチェを注文',
+      overhead: { title: 'HAPPY BIRTHDAY!', sub: 'お誕生日おめでとうございます！', icon: '🎂' },
+      toast: '🎂 誕生月サプライズクーポンが付与されました！',
+      rationaleKey: 'birthday_easteregg'
+    },
+    gameover_dining: {
+      buttonLabel: '🏁 2ゲーム終了 (送客)',
+      title: '🏁 【ゲーム終了特典】隣接イタリアン Bolo ダイニング送客クーポン',
+      desc: 'ボウリングお疲れ様でした！隣接レストラン席にて『挽きたて珈琲無料 / お食事10%OFF』',
+      icon: '🍝',
+      typeClass: 'type-dining',
+      isNonImmediate: true,
+      voucherCode: '7842',
+      note: 'Boloのレジにて画面のQRコード読み取りまたは番号 [#7842] をご提示ください。',
+      overhead: { title: '2 GAMES COMPLETED', sub: 'ゲームお疲れ様でした！Boloで乾杯＆ランチを！', icon: '🏁' },
+      toast: '🏁 Boloダイニング送客共通クーポンを発行しました（QRコード ＆ コード: #7842）',
+      rationaleKey: 'gameover_dining'
+    }
+  },
+
+  // ② 夕方・学生グループ
+  student_afternoon: {
+    strike: {
+      buttonLabel: '🎳 ストライク！',
+      title: '🎳 STRIKE BONUS! 山盛りポテト2倍増量（無料）',
+      desc: 'ストライク達成！お好きなフレーバーで今すぐ増量中！',
+      icon: '🍟',
+      typeClass: 'type-special',
+      isNonImmediate: false,
+      discount: 300,
+      actionText: 'ポテト増量で注文',
+      overhead: { title: 'STRIKE!', sub: 'ナイスストライク！ポテト増量チャンス！', icon: '🍟' },
+      toast: '🎳 ストライク達成！山盛りポテト2倍増量特典が付与されました',
+      rationaleKey: 'strike'
+    },
+    turkey: {
+      buttonLabel: '🔥 ターキー達成！',
+      title: '🔥 ターキー達成記念！メガフロート全員分無料サービス',
+      desc: '偉業達成！グループ全員にメガフロートをプレゼント！',
+      icon: '🥤',
+      typeClass: 'type-special',
+      isNonImmediate: false,
+      discount: 550,
+      note: '本端末限定・発行から30分間のみ有効です。',
+      actionText: 'メガフロートを適用',
+      overhead: { title: '🔥 TURKEY BONUS! 🔥', sub: '3連続ストライク！メガフロート無料！', icon: '🥤' },
+      toast: '🔥 ターキー達成！メガフロート全員分無料特典を付与しました',
+      rationaleKey: 'turkey'
+    },
+    zoro_easteregg: {
+      buttonLabel: '🎰 ゾロ目 (111点)',
+      title: '🎰 【イースターエッグ】奇跡のゾロ目フィーバー (111点達成！)',
+      desc: '奇跡のゾロ目賞！『THE☆明太子パスタ 300円引き』',
+      icon: '🎰',
+      typeClass: 'type-easteregg',
+      isNonImmediate: false,
+      discount: 300,
+      note: '偶然の幸運を称えるシークレット特典です。',
+      actionText: 'パスタ300円引で注文',
+      overhead: { title: 'SLOT FEVER 111!', sub: '奇跡のゾロ目達成！ラッキーフィーバー！', icon: '🎰' },
+      toast: '🎰 ゾロ目イースターエッグが発動しました！',
+      rationaleKey: 'zoro_easteregg'
+    },
+    just_easteregg: {
+      buttonLabel: '🎯 ピタリ賞 (100点)',
+      title: '🎯 【イースターエッグ】ジャストピタリ賞 (ぴったり100点達成！)',
+      desc: 'ぴったり100点達成！『フライドポテト 2倍増量（無料）』',
+      icon: '🎯',
+      typeClass: 'type-easteregg',
+      isNonImmediate: false,
+      discount: 300,
+      note: '日替わりシークレットイースターエッグです。',
+      actionText: 'ポテト増量で注文',
+      overhead: { title: 'JUST 100 PTS!', sub: 'ぴったりキリ番ピタリ賞！', icon: '🎯' },
+      toast: '🎯 ピタリ賞イースターエッグが発動しました！',
+      rationaleKey: 'just_easteregg'
+    },
+    date_easteregg: {
+      buttonLabel: '📅 日付スコア (129点)',
+      title: '🎉 【本日限定イースターエッグ】日付賞 (12/9 ➔ 129点達成！)',
+      desc: '本日プレイ日 [12月9日] とスコアが一致！『生搾りモンブランCAKE 200円引き』',
+      icon: '📅',
+      typeClass: 'type-easteregg',
+      isNonImmediate: false,
+      discount: 200,
+      note: '本特典は本日日付限定の特別イースターエッグです。条件は日替わりで変化します。',
+      actionText: 'モンブラン200円引で注文',
+      overhead: { title: 'SECRET EASTER EGG!', sub: '本日限定 [12月9日＝129点] ピタリ的中！', icon: '🎉' },
+      toast: '📅 日付連動イースターエッグを発見しました！',
+      rationaleKey: 'date_easteregg'
+    },
+    gameover_dining: {
+      buttonLabel: '🏁 2ゲーム終了 (送客)',
+      title: '🏁 【放課後学割特典】Bolo ダイニング送客クーポン',
+      desc: 'ボウリング後の打ち上げに！Boloレストラン席にて『ソフトドリンクバー無料 / お食事10%OFF』',
+      icon: '🍕',
+      typeClass: 'type-dining',
+      isNonImmediate: true,
+      voucherCode: '5512',
+      note: 'Boloのレジにて画面のQRコード読み取りまたは番号 [#5512] をご提示ください。',
+      overhead: { title: 'GAME OVER - BOLO VOUCHER', sub: '放課後打ち上げ！Boloでドリンクバー無料！', icon: '🍕' },
+      toast: '🏁 放課後学割Boloダイニング送客クーポンを発行しました（コード: #5512）',
+      rationaleKey: 'gameover_dining'
+    }
+  },
+
+  // ③ 夜間・社会人宴会
+  adult_evening: {
+    strike: {
+      buttonLabel: '🎳 ストライク！',
+      title: '🎳 STRIKE BONUS! 生ビール・ハイボール1杯 200円引',
+      desc: '乾杯ドリンクに使える即時割引クーポンが付与されました。',
+      icon: '🍻',
+      typeClass: 'type-special',
+      isNonImmediate: false,
+      discount: 200,
+      actionText: 'ドリンク割引で注文',
+      overhead: { title: 'STRIKE!', sub: '乾杯！生ビール・ハイボール割引！', icon: '🍺' },
+      toast: '🎳 ストライク達成！生ビール割引特典が付与されました',
+      rationaleKey: 'strike'
+    },
+    turkey: {
+      buttonLabel: '🔥 ターキー達成！',
+      title: '🔥 ターキー達成記念！プレミアム生ビール半額 / タパス盛り合わせ進呈',
+      desc: '偉業達成！このレーン限定・30分以内有効の特別プレミアム特典です！',
+      icon: '👑',
+      typeClass: 'type-special',
+      isNonImmediate: false,
+      discount: 400,
+      note: '本端末限定・発行から30分間のみ有効です。',
+      actionText: 'プレミアム特典を適用',
+      overhead: { title: '🔥 TURKEY FEVER! 🔥', sub: '3連続ストライク！生ビール半額！', icon: '👑' },
+      toast: '🔥 ターキー達成！生ビール半額＆タパス進呈特典を付与しました',
+      rationaleKey: 'turkey'
+    },
+    zoro_easteregg: {
+      buttonLabel: '🎰 ゾロ目 (111点)',
+      title: '🎰 【イースターエッグ】奇跡のゾロ目フィーバー (111点達成！)',
+      desc: '奇跡のゾロ目賞！『ルッコラと生ハムのピザ 300円引き』',
+      icon: '🎰',
+      typeClass: 'type-easteregg',
+      isNonImmediate: false,
+      discount: 300,
+      note: '偶然の幸運を称えるシークレット特典です。',
+      actionText: 'ピザ300円引で注文',
+      overhead: { title: 'SLOT FEVER 111!', sub: '奇跡のゾロ目達成！ピザ割引！', icon: '🍕' },
+      toast: '🎰 ゾロ目イースターエッグが発動しました！',
+      rationaleKey: 'zoro_easteregg'
+    },
+    birthday_easteregg: {
+      buttonLabel: '🎂 誕生月ボーナス',
+      title: '🎂 【誕生月サプライズ】お誕生日おめでとうございます！',
+      desc: '誕生月のご来店感謝！『乾杯用スパークリングワイン 1本プレゼント』',
+      icon: '🍾',
+      typeClass: 'type-easteregg',
+      isNonImmediate: false,
+      discount: 1200,
+      note: 'お誕生月限定の特別おもてなし特典です。',
+      actionText: 'スパークリングワインを注文',
+      overhead: { title: 'HAPPY BIRTHDAY!', sub: '乾杯用スパークリングワイン進呈！', icon: '🍾' },
+      toast: '🎂 誕生月サプライズクーポンが付与されました！',
+      rationaleKey: 'birthday_easteregg'
+    },
+    gameover_dining: {
+      buttonLabel: '🏁 2ゲーム終了 (送客)',
+      title: '🏁 【二次会送客特典】隣接イタリアン Bolo バル優待クーポン',
+      desc: 'ボウリング後の二次会に！Boloレストラン席にて『おつまみタパス1品サービス / お会計10%OFF』',
+      icon: '🍷',
+      typeClass: 'type-dining',
+      isNonImmediate: true,
+      voucherCode: '9034',
+      note: 'Boloのレジにて画面のQRコード読み取りまたは番号 [#9034] をご提示ください。',
+      overhead: { title: '2 GAMES COMPLETED', sub: 'ボウリングの後はBoloで二次会へ！', icon: '🍷' },
+      toast: '🏁 Boloバル二次会送客クーポンを発行しました（コード: #9034）',
+      rationaleKey: 'gameover_dining'
+    }
+  },
+
+  // ④ 休日・ファミリー
+  family_weekend: {
+    strike: {
+      buttonLabel: '🎳 ストライク！',
+      title: '🎳 STRIKE BONUS! ファミリーシェアピザ 300円引',
+      desc: 'ストライク達成！家族でシェアできるピザが300円引き！',
+      icon: '🍕',
+      typeClass: 'type-special',
+      isNonImmediate: false,
+      discount: 300,
+      actionText: 'シェアピザ割引で注文',
+      overhead: { title: 'STRIKE!', sub: 'パパ・ママ・キッズも大喜び！シェアピザ割引！', icon: '🍕' },
+      toast: '🎳 ストライク達成！ファミリーシェアピザ割引が付与されました',
+      rationaleKey: 'strike'
+    },
+    gutter: {
+      buttonLabel: '💦 連続ガター（子ども救済）',
+      title: '💦 (＞＜) どんまい！ナイスファイト賞！アイス100円引 ＆ 特製シール',
+      desc: 'あきらめずに投げた君へ！CUPソフトまたはピスタチオアイスが100円引き！',
+      icon: '🍦',
+      typeClass: 'type-special',
+      isNonImmediate: false,
+      discount: 100,
+      note: 'カウンタースタッフにお声がけで特製ガターシールもプレゼント！',
+      actionText: 'アイス100円引で注文',
+      overhead: { title: 'DONMAI!', sub: 'がんばったで賞！アイス100円引＋シール！', icon: '🍦' },
+      toast: '💦 どんまい救済クーポンが発券されました（子どもの笑顔化）',
+      rationaleKey: 'gutter'
+    },
+    date_easteregg: {
+      buttonLabel: '📅 日付スコア (129点)',
+      title: '🎉 【本日限定イースターエッグ】日付賞 (12/9 ➔ 129点達成！)',
+      desc: '本日プレイ日 [12月9日] とスコアが一致！『ファミリーポテト 200円引き』',
+      icon: '📅',
+      typeClass: 'type-easteregg',
+      isNonImmediate: false,
+      discount: 200,
+      note: '本特典は本日日付限定の特別イースターエッグです。条件は日替わりで変化します。',
+      actionText: 'ポテト200円引で注文',
+      overhead: { title: 'SECRET EASTER EGG!', sub: '本日限定 [12月9日＝129点] ピタリ的中！', icon: '🎉' },
+      toast: '📅 日付連動イースターエッグを発見しました！',
+      rationaleKey: 'date_easteregg'
+    },
+    birthday_easteregg: {
+      buttonLabel: '🎂 誕生月ボーナス',
+      title: '🎂 【誕生月サプライズ】キッズお誕生日おめでとう！',
+      desc: '誕生月のご来店感謝！『キッズプレート 無料プレゼント』',
+      icon: '🎈',
+      typeClass: 'type-easteregg',
+      isNonImmediate: false,
+      discount: 780,
+      note: 'お誕生月限定の特別おもてなし特典です。',
+      actionText: 'キッズプレートを注文',
+      overhead: { title: 'HAPPY BIRTHDAY KIDS!', sub: 'キッズプレート無料プレゼント！', icon: '🎈' },
+      toast: '🎂 誕生月サプライズクーポンが付与されました！',
+      rationaleKey: 'birthday_easteregg'
+    },
+    gameover_dining: {
+      buttonLabel: '🏁 2ゲーム終了 (送客)',
+      title: '🏁 【ファミリー特典】隣接イタリアン Bolo ランチ送客クーポン',
+      desc: 'ボウリングお疲れ様でした！隣接レストラン席にて『キッズドリンク全員無料 / お食事10%OFF』',
+      icon: '👨‍👩‍👧',
+      typeClass: 'type-dining',
+      isNonImmediate: true,
+      voucherCode: '3341',
+      note: 'Boloのレジにて画面のQRコード読み取りまたは番号 [#3341] をご提示ください。',
+      overhead: { title: 'FAMILY TIME IN BOLO', sub: 'ゲームの後は家族でBoloランチへ！', icon: '🍝' },
+      toast: '🏁 ファミリーBoloダイニング送客クーポンを発行しました（コード: #3341）',
+      rationaleKey: 'gameover_dining'
+    }
+  }
+};
+
 // --- Menus Definition by Time Slot ---
 const MENUS = {
   senior_lunch: {
@@ -252,11 +558,81 @@ const RATIONALE_TEMPLATES = {
     type: '共通クーポン（隣接イタリアンダイニング Bolo送客用）',
     intent: '投球終了後の空腹・クールダウン需要を逃さず、隣接レストラン「Bolo」のテーブル席へ誘導。珈琲無料やランチ/ディナー10%OFFで確実に着席させます。',
     antiFraud: '【共有・コピー大歓迎モデル】Boloのテーブル席に着席して客単価1,500〜3,000円が発生するため、誰が使っても店舗側に確実に大きな粗利が残ります。',
-    uxSafeguard: '頭上モニターにQRコードと大きな4桁番号（#7842）を表示。スマホ操作が苦手なシニアもレジで番号を言うだけでスムーズに利用できます。',
+    uxSafeguard: '頭上モニターにQRコードと大きな4桁番号を表示。スマホ操作が苦手なシニアもレジで番号を言うだけでスムーズに利用できます。',
     arpuImpact: '+1,500円〜+2,500円 / 人（ダイニング併用による施設ARPU爆発的向上）',
     csImpact: '4.9 / 5.0（運動後に美味しい食事ができる完璧なルーティン）'
   }
 };
+
+// --- QR Code Helper ---
+function generateQRCode(elementId, text, size = 72) {
+  const container = document.getElementById(elementId);
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (typeof QRCode !== 'undefined') {
+    try {
+      new QRCode(container, {
+        text: text,
+        width: size,
+        height: size,
+        colorDark: "#0f172a",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      return;
+    } catch (e) {
+      console.warn("QRCode error:", e);
+    }
+  }
+
+  // Fallback image
+  const img = document.createElement('img');
+  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&margin=0`;
+  img.alt = 'QR Code';
+  img.width = size;
+  img.height = size;
+  container.appendChild(img);
+}
+
+// --- Action Buttons Dynamic Filter per Customer Segment ---
+function updateActionButtons() {
+  const currentRules = SEGMENT_EVENT_RULES[state.preset] || {};
+  const buttons = document.querySelectorAll('#action-buttons-group .action-btn');
+  let activeCount = 0;
+
+  buttons.forEach(btn => {
+    const actionKey = btn.dataset.action;
+    if (actionKey === 'reset') {
+      btn.style.display = 'inline-flex';
+      btn.disabled = false;
+      return;
+    }
+
+    const rule = currentRules[actionKey];
+    if (rule) {
+      // Event is active for this customer segment
+      btn.style.display = 'inline-flex';
+      btn.disabled = false;
+      btn.classList.remove('btn-inactive');
+      if (rule.buttonLabel) {
+        btn.innerText = rule.buttonLabel;
+      }
+      activeCount++;
+    } else {
+      // Event is NOT active for this customer segment -> Hide button
+      btn.style.display = 'none';
+      btn.disabled = true;
+      btn.classList.add('btn-inactive');
+    }
+  });
+
+  const countTag = document.getElementById('sim-actions-count');
+  if (countTag) {
+    const slotName = PRESETS[state.preset]?.timeSlotName || '客層';
+    countTag.innerText = `発火可能: ${activeCount}種 (${slotName})`;
+  }
+}
 
 // --- Core UI Update Functions ---
 
@@ -268,7 +644,7 @@ function init() {
 function bindEvents() {
   // Preset Buttons
   document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', () => {
       const presetKey = btn.dataset.preset;
       applyPreset(presetKey);
     });
@@ -304,15 +680,16 @@ function bindEvents() {
   });
 
   // Simulation Action Buttons
-  document.getElementById('btn-strike').addEventListener('click', () => triggerAction('strike'));
-  document.getElementById('btn-turkey').addEventListener('click', () => triggerAction('turkey'));
-  document.getElementById('btn-gutter').addEventListener('click', () => triggerAction('gutter'));
-  document.getElementById('btn-date').addEventListener('click', () => triggerAction('date_easteregg'));
-  document.getElementById('btn-zoro').addEventListener('click', () => triggerAction('zoro_easteregg'));
-  document.getElementById('btn-just').addEventListener('click', () => triggerAction('just_easteregg'));
-  document.getElementById('btn-birthday').addEventListener('click', () => triggerAction('birthday_easteregg'));
-  document.getElementById('btn-gameover').addEventListener('click', () => triggerAction('gameover_dining'));
-  document.getElementById('btn-reset').addEventListener('click', () => resetSimulation());
+  document.querySelectorAll('#action-buttons-group .action-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      if (action === 'reset') {
+        resetSimulation();
+      } else if (action) {
+        triggerAction(action);
+      }
+    });
+  });
 
   // Order submit
   document.getElementById('btn-submit-order').addEventListener('click', () => submitOrder());
@@ -345,6 +722,9 @@ function applyPreset(presetKey) {
   document.querySelectorAll('.count-btn').forEach(btn => {
     btn.classList.toggle('active', parseInt(btn.dataset.count, 10) === state.playerCount);
   });
+
+  // Update available action buttons for this segment
+  updateActionButtons();
 
   // Re-render
   renderScoreboard();
@@ -379,6 +759,7 @@ function setPlayerCount(count) {
 
   renderScoreboard();
   renderMenu();
+  renderPushCoupon();
   showToast(`👥 登録人数を ${count}名 に変更しました`, 'toast-success');
 }
 
@@ -401,6 +782,7 @@ function handleManualTimeChange(timeVal) {
     document.getElementById('tablet-time-tag').innerText = 'ナイトボウリング＆バルタイム';
   }
 
+  updateActionButtons();
   renderMenu();
   renderRationale(state.activeAction);
 }
@@ -410,7 +792,11 @@ function updateDateDisplay() {
   const month = parseInt(parts[1], 10);
   const day = parseInt(parts[2], 10);
   const targetScore = `${month}${day < 10 ? '0' + day : day}`;
-  document.getElementById('btn-date').innerText = `📅 日付スコア (${month}/${day} ➔ ${month}${day}点)`;
+  
+  const dateBtn = document.getElementById('btn-date');
+  if (dateBtn) {
+    dateBtn.innerText = `📅 日付スコア (${month}/${day} ➔ ${targetScore}点)`;
+  }
 }
 
 // --- Scoreboard Rendering ---
@@ -543,68 +929,66 @@ function renderPushCoupon() {
   }
 
   const c = state.activeCoupon;
-  container.innerHTML = `
-    <div class="push-coupon-card ${c.typeClass}">
-      <div class="coupon-left">
-        <span class="coupon-badge-icon">${c.icon}</span>
-        <div class="coupon-texts">
-          <h4>${c.title}</h4>
-          <p>${c.desc}</p>
-          ${c.note ? `<p class="coupon-note">※ ${c.note}</p>` : ''}
+  const isNonImmediate = c.typeClass === 'type-dining' || c.isNonImmediate === true || Boolean(c.voucherCode);
+
+  if (isNonImmediate) {
+    const code = c.voucherCode || '7842';
+    const qrUrl = `https://artie-info.com/bolo?coupon=${code}`;
+    container.innerHTML = `
+      <div class="push-coupon-card ${c.typeClass}">
+        <div class="coupon-left">
+          <span class="coupon-badge-icon">${c.icon}</span>
+          <div class="coupon-texts">
+            <h4>${c.title}</h4>
+            <p>${c.desc}</p>
+            ${c.note ? `<p class="coupon-note">※ ${c.note}</p>` : ''}
+          </div>
+        </div>
+        <div class="coupon-qr-side-box">
+          <div class="tablet-qr-canvas" id="tablet-qr-canvas"></div>
+          <div class="tablet-qr-code-text">#${code}</div>
+          <div class="tablet-qr-sub">Boloレジ提示用</div>
         </div>
       </div>
-      <button class="btn-apply-coupon" onclick="applyPushCoupon('${c.id}')">${c.actionText || '1タップで適用'}</button>
-    </div>
-  `;
+    `;
+    setTimeout(() => {
+      generateQRCode('tablet-qr-canvas', qrUrl, 72);
+    }, 20);
+  } else {
+    container.innerHTML = `
+      <div class="push-coupon-card ${c.typeClass}">
+        <div class="coupon-left">
+          <span class="coupon-badge-icon">${c.icon}</span>
+          <div class="coupon-texts">
+            <h4>${c.title}</h4>
+            <p>${c.desc}</p>
+            ${c.note ? `<p class="coupon-note">※ ${c.note}</p>` : ''}
+          </div>
+        </div>
+        <button class="btn-apply-coupon" onclick="applyPushCoupon('${c.id}')">${c.actionText || '1タップで適用'}</button>
+      </div>
+    `;
+  }
 }
 
 // --- Trigger Simulation Logic ---
 
 function triggerAction(actionKey) {
+  const currentRules = SEGMENT_EVENT_RULES[state.preset] || {};
+  const rule = currentRules[actionKey];
+
+  if (!rule) {
+    showToast(`⚠️ この客層（${PRESETS[state.preset]?.timeSlotName}）にはこのイベントは設定されていません`, 'toast-coupon');
+    return;
+  }
+
   state.activeAction = actionKey;
 
+  // Apply score simulations
   switch (actionKey) {
     case 'strike':
       state.players[0].scores[18] = 'X';
       state.players[0].total += 10;
-      renderScoreboard();
-      renderOverheadMonitor('STRIKE!', 'お見事！ナイスストライク！', '🎳');
-
-      if (state.preset === 'student_afternoon') {
-        state.activeCoupon = {
-          id: 'strike_student',
-          title: '🎳 STRIKE BONUS! 山盛りポテト2倍増量（無料）',
-          desc: 'ストライク達成！お好きなフレーバーで今すぐ増量中！',
-          note: null,
-          icon: '🍟',
-          typeClass: 'type-special',
-          discount: 300,
-          actionText: 'ポテト増量で注文'
-        };
-      } else if (state.preset === 'adult_evening') {
-        state.activeCoupon = {
-          id: 'strike_adult',
-          title: '🎳 STRIKE BONUS! 生ビール・ハイボール1杯 200円引',
-          desc: '乾杯ドリンクに使える即時割引クーポンが付与されました。',
-          note: null,
-          icon: '🍻',
-          typeClass: 'type-special',
-          discount: 200,
-          actionText: 'ドリンク割引で注文'
-        };
-      } else {
-        state.activeCoupon = {
-          id: 'strike_senior',
-          title: '🎳 STRIKE BONUS! 挽きたて珈琲 or ミニデザート 100円引',
-          desc: 'お見事です！ゲーム後のランチ・喫茶で使える限定割引です。',
-          note: null,
-          icon: '☕',
-          typeClass: 'type-special',
-          discount: 100,
-          actionText: '珈琲値引きで注文'
-        };
-      }
-      showToast('🎳 ストライク達成！レーン端末に特典がプッシュされました', 'toast-coupon');
       break;
 
     case 'turkey':
@@ -612,20 +996,6 @@ function triggerAction(actionKey) {
       state.players[0].scores[18] = 'X';
       state.players[0].scores[19] = 'X';
       state.players[0].total = 215;
-      renderScoreboard();
-      renderOverheadMonitor('🔥 TURKEY ACHIEVED! 🔥', '3連続ストライク達成！プレミアム特典発動！', '🦃');
-
-      state.activeCoupon = {
-        id: 'turkey_reward',
-        title: '🔥 ターキー達成記念！プレミアム生ビール半額 / デザートプレート進呈',
-        desc: '偉業達成！このレーン限定・30分以内有効の特別プレミアム特典です！',
-        note: '本端末限定・発行から30分間のみ有効です。',
-        icon: '👑',
-        typeClass: 'type-special',
-        discount: 400,
-        actionText: 'プレミアム特典を適用'
-      };
-      showToast('🔥 ターキー達成！高額プレミアムクーポンを自動付与しました', 'toast-coupon');
       break;
 
     case 'gutter':
@@ -636,112 +1006,44 @@ function triggerAction(actionKey) {
         state.players[0].scores[18] = 'G';
         state.players[0].scores[19] = 'G';
       }
-      renderScoreboard();
-      renderOverheadMonitor('DONMAI!', 'がんばったで賞！次があるよ！', '💦');
-
-      state.activeCoupon = {
-        id: 'gutter_rescue',
-        title: '💦 (＞＜) どんまい！ナイスファイト賞！アイス100円引 ＆ 特製シール',
-        desc: 'あきらめずに投げた君へ！CUPソフトまたはピスタチオアイスが100円引き！',
-        note: 'カウンタースタッフにお声がけで特製ガターシールもプレゼント！',
-        icon: '🍦',
-        typeClass: 'type-special',
-        discount: 100,
-        actionText: 'アイス100円引で注文'
-      };
-      showToast('💦 どんまい救済クーポンが発券されました（子どもの笑顔化）', 'toast-coupon');
       break;
 
     case 'date_easteregg':
       state.players[0].total = 129;
-      renderScoreboard();
-      renderOverheadMonitor('SECRET EASTER EGG!', '本日限定 [12月9日＝129点] ピタリ的中！', '🎉');
-
-      state.activeCoupon = {
-        id: 'easteregg_date',
-        title: '🎉 【本日限定イースターエッグ】日付賞 (12/9 ➔ 129点達成！)',
-        desc: '本日プレイ日 [12月9日] とスコアが一致！『生搾りモンブランCAKE 200円引き』',
-        note: '本特典は本日日付限定の特別イースターエッグです。条件は日替わりで変化します。',
-        icon: '📅',
-        typeClass: 'type-easteregg',
-        discount: 200,
-        actionText: 'モンブラン200円引で注文'
-      };
-      showToast('📅 日付連動イースターエッグを発見しました！', 'toast-coupon');
       break;
 
     case 'zoro_easteregg':
       state.players[0].total = 111;
-      renderScoreboard();
-      renderOverheadMonitor('SLOT FEVER 111!', '奇跡のゾロ目達成！ラッキーフィーバー！', '🎰');
-
-      state.activeCoupon = {
-        id: 'easteregg_zoro',
-        title: '🎰 【イースターエッグ】奇跡のゾロ目フィーバー (111点達成！)',
-        desc: '奇跡のゾロ目賞！『プレミアム生パスタ 全品300円引き』',
-        note: '偶然の幸運を称えるシークレット特典です。',
-        icon: '🎰',
-        typeClass: 'type-easteregg',
-        discount: 300,
-        actionText: 'パスタ300円引で注文'
-      };
-      showToast('🎰 ゾロ目イースターエッグが発動しました！', 'toast-coupon');
       break;
 
     case 'just_easteregg':
       state.players[0].total = 100;
-      renderScoreboard();
-      renderOverheadMonitor('JUST 100 PTS!', 'ぴったりキリ番ピタリ賞！', '🎯');
-
-      state.activeCoupon = {
-        id: 'easteregg_just',
-        title: '🎯 【イースターエッグ】ジャストピタリ賞 (ぴったり100点達成！)',
-        desc: 'ぴったり100点達成！『フライドポテト 2倍増量（無料）』',
-        note: '日替わりシークレットイースターエッグです。',
-        icon: '🎯',
-        typeClass: 'type-easteregg',
-        discount: 300,
-        actionText: 'ポテト増量で注文'
-      };
-      showToast('🎯 ピタリ賞イースターエッグが発動しました！', 'toast-coupon');
       break;
 
     case 'birthday_easteregg':
-      renderOverheadMonitor('HAPPY BIRTHDAY!', 'お誕生日おめでとうございます！', '🎂');
-
-      state.activeCoupon = {
-        id: 'easteregg_bday',
-        title: '🎂 【誕生月サプライズ】お誕生日おめでとうございます！',
-        desc: '誕生月のご来店感謝！『バースデーデザートプレート 無料プレゼント』',
-        note: 'お誕生月限定の特別おもてなし特典です。',
-        icon: '🎂',
-        typeClass: 'type-easteregg',
-        discount: 680,
-        actionText: 'デザートプレートを注文'
-      };
-      showToast('🎂 誕生月サプライズクーポンが付与されました！', 'toast-coupon');
+      // Keeps score unchanged
       break;
 
     case 'gameover_dining':
-      renderOverheadMonitor('2 GAMES COMPLETED', 'ゲームお疲れ様でした！Boloで乾杯＆ランチを！', '🏁');
       document.getElementById('monitor-voucher-area').style.display = 'flex';
-
-      state.activeCoupon = {
-        id: 'gameover_voucher',
-        title: '🏁 【ゲーム終了特典】隣接イタリアン Bolo ダイニング送客クーポン',
-        desc: 'ボウリングお疲れ様でした！隣接レストラン席にて『挽きたて珈琲無料 / お食事10%OFF』',
-        note: 'Boloのレジにて画面またはスコアシートの番号 [#7842] をご提示ください。',
-        icon: '🍝',
-        typeClass: 'type-dining',
-        discount: 0,
-        actionText: 'Bolo席を予約・利用'
-      };
-      showToast('🏁 Boloダイニング送客共通クーポンを発行しました（コード: #7842）', 'toast-coupon');
       break;
   }
 
+  state.activeCoupon = {
+    id: `${state.preset}_${actionKey}`,
+    ...rule
+  };
+
+  renderScoreboard();
+  renderOverheadMonitor(
+    rule.overhead?.title || 'SPECIAL EVENT',
+    rule.overhead?.sub || 'おめでとうございます！',
+    rule.overhead?.icon || rule.icon || '🎳',
+    rule.voucherCode || '7842'
+  );
   renderPushCoupon();
-  renderRationale(actionKey);
+  renderRationale(rule.rationaleKey || actionKey);
+  showToast(rule.toast || 'イベントが発火しました！', 'toast-coupon');
 }
 
 function resetSimulation() {
@@ -751,15 +1053,32 @@ function resetSimulation() {
 
 // --- Overhead Monitor Rendering ---
 
-function renderOverheadMonitor(title, sub, icon) {
+function renderOverheadMonitor(title, sub, icon, voucherCode = '7842') {
   const screen = document.getElementById('overhead-screen');
   const animIcon = screen.querySelector('.monitor-anim-icon');
   const bannerTitle = screen.querySelector('.monitor-banner-title');
   const bannerSub = screen.querySelector('.monitor-banner-sub');
+  const voucherArea = document.getElementById('monitor-voucher-area');
 
   animIcon.innerText = icon;
   bannerTitle.innerText = title;
   bannerSub.innerText = sub;
+
+  if (voucherArea) {
+    voucherArea.innerHTML = `
+      <div class="monitor-footer-left">
+        <div class="voucher-mini-badge">Bolo Dining Voucher</div>
+        <div class="voucher-mini-sub">ゲーム後のお食事・カフェ優待</div>
+      </div>
+      <div class="monitor-qr-group">
+        <div class="monitor-qr-canvas" id="monitor-qr-canvas"></div>
+        <div class="voucher-mini-code">#${voucherCode}</div>
+      </div>
+    `;
+    setTimeout(() => {
+      generateQRCode('monitor-qr-canvas', `https://artie-info.com/bolo?coupon=${voucherCode}`, 44);
+    }, 20);
+  }
 
   // Flash animation
   screen.style.borderColor = '#38bdf8';

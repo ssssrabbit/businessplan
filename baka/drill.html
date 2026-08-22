@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>方程式の式変形 反復ドリル</title>
+<title>最数学</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4299e1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="最数学">
+<link rel="apple-touch-icon" href="icon.png">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,52 +18,90 @@ body {
   background: #f0f4f8;
   color: #1a202c;
   min-height: 100vh;
-  padding: 20px 16px 40px;
+  padding: 16px 16px 48px;
 }
 
-header {
-  text-align: center;
-  margin-bottom: 20px;
+header { text-align: center; margin-bottom: 14px; }
+header h1 { font-size: 1.25rem; color: #2d3748; font-weight: 800; }
+
+/* ── Top bar: tabs + share ── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 520px;
+  margin: 0 auto 18px;
+  gap: 10px;
 }
 
-header h1 {
-  font-size: 1.35rem;
+.tab-bar {
+  display: flex;
+  background: #e2e8f0;
+  border-radius: 10px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.tab-btn {
+  padding: 8px 22px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  color: #718096;
+  transition: background 0.18s, color 0.18s;
+}
+.tab-btn.active {
+  background: #fff;
   color: #2d3748;
-  font-weight: 800;
-  letter-spacing: 0.03em;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
 }
+
+#share-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #68d391;
+  color: #276749;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.18s;
+}
+#share-btn:hover { background: #48bb78; }
+
+/* ── Tab panels ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
 /* ── Counter board ── */
 .counter-board {
   display: flex;
   justify-content: center;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .counter-item {
   position: relative;
   background: #fff;
   border-radius: 14px;
-  padding: 10px 18px;
+  padding: 10px 16px;
   text-align: center;
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-  min-width: 78px;
+  min-width: 75px;
 }
 
-.counter-label {
-  font-size: 0.72rem;
-  color: #718096;
-  margin-bottom: 2px;
-}
-
+.counter-label { font-size: 0.7rem; color: #718096; margin-bottom: 2px; }
 .counter-value {
-  font-size: 2rem;
+  font-size: 1.9rem;
   font-weight: 900;
   line-height: 1;
   display: inline-block;
 }
-
 .counter-value.total   { color: #2d3748; }
 .counter-value.correct { color: #38a169; }
 .counter-value.miss    { color: #e53e3e; }
@@ -67,20 +111,17 @@ header h1 {
   45%  { transform: scale(1.6); }
   100% { transform: scale(1); }
 }
-
 .bounce { animation: popBounce 0.38s ease; }
 
 @keyframes floatUp {
   0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
   100% { opacity: 0; transform: translateX(-50%) translateY(-44px); }
 }
-
 .plus-one-float {
   position: absolute;
-  top: 0;
-  left: 50%;
+  top: 0; left: 50%;
   transform: translateX(-50%);
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 900;
   pointer-events: none;
   animation: floatUp 0.8s ease forwards;
@@ -91,7 +132,7 @@ header h1 {
 .card {
   background: #fff;
   border-radius: 18px;
-  padding: 24px 22px;
+  padding: 22px 20px;
   box-shadow: 0 4px 18px rgba(0,0,0,0.09);
   max-width: 520px;
   margin: 0 auto;
@@ -106,44 +147,30 @@ header h1 {
 }
 
 .equation-display {
-  font-size: 2.1rem;
+  font-size: 2rem;
   font-weight: 800;
   text-align: center;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
   color: #1a202c;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   min-height: 2.6rem;
 }
 
-.input-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.x-label {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #2d3748;
-  white-space: nowrap;
-}
-
-#answer-input {
-  width: 140px;
-  font-size: 1.15rem;
-  padding: 9px 12px;
+/* ── Shared input styles ── */
+.answer-input {
+  font-size: 1.1rem;
+  padding: 9px 10px;
   border: 2px solid #cbd5e0;
   border-radius: 8px;
   outline: none;
   text-align: center;
-  transition: border-color 0.2s;
+  transition: border-color 0.18s;
   font-family: 'Courier New', Courier, monospace;
+  background: #fff;
+  color: #1a202c;
 }
-
-#answer-input:focus  { border-color: #4299e1; }
-#answer-input:disabled { background: #f7fafc; color: #718096; }
+.answer-input:focus    { border-color: #4299e1; }
+.answer-input:disabled { background: #f7fafc; color: #718096; }
 
 .hint-text {
   text-align: center;
@@ -153,7 +180,8 @@ header h1 {
   line-height: 1.6;
 }
 
-#submit-btn {
+/* ── Submit button ── */
+.submit-btn {
   display: block;
   width: 100%;
   padding: 13px;
@@ -164,24 +192,80 @@ header h1 {
   cursor: pointer;
   background: #4299e1;
   color: #fff;
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.18s, transform 0.1s;
   letter-spacing: 0.02em;
+  margin-top: 4px;
 }
+.submit-btn:hover  { background: #3182ce; }
+.submit-btn:active { transform: scale(0.97); }
+.submit-btn.next-mode       { background: #48bb78; }
+.submit-btn.next-mode:hover { background: #38a169; }
 
-#submit-btn:hover  { background: #3182ce; }
-#submit-btn:active { transform: scale(0.97); }
-#submit-btn.next-mode       { background: #48bb78; }
-#submit-btn.next-mode:hover { background: #38a169; }
+/* ── Equation tab input ── */
+.eq-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.x-label {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2d3748;
+  white-space: nowrap;
+}
+#eq-answer { width: 140px; }
+
+/* ── Expansion tab input ── */
+.exp-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.equals-label {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+.exp-x-label {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+#exp-coeff { width: 78px; }
+#exp-const { width: 68px; }
+
+.sign-toggle-btn {
+  width: 50px;
+  height: 42px;
+  font-size: 1.3rem;
+  font-weight: 900;
+  border: 2px solid #cbd5e0;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  color: #2d3748;
+  transition: background 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.sign-toggle-btn:hover:not(:disabled) { background: #ebf8ff; border-color: #63b3ed; }
+.sign-toggle-btn:disabled { background: #f7fafc; color: #718096; cursor: default; }
 
 /* ── Feedback ── */
-.feedback { display: none; margin-top: 22px; }
-
+.feedback { display: none; margin-top: 20px; }
 .feedback.correct,
 .feedback.incorrect,
 .feedback.calculated-warning { display: block !important; }
 
 .result-badge {
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   font-weight: 900;
   text-align: center;
   padding: 11px 10px;
@@ -189,27 +273,25 @@ header h1 {
   margin-bottom: 14px;
   line-height: 1.4;
 }
+.correct-badge { background: #c6f6d5; color: #276749; }
+.warning-badge { background: #fefcbf; color: #744210; }
+.error-badge   { background: #fed7d7; color: #822727; }
 
-.correct-badge  { background: #c6f6d5; color: #276749; }
-.warning-badge  { background: #fefcbf; color: #744210; }
-.error-badge    { background: #fed7d7; color: #822727; }
-
+/* ── Diff table ── */
 .diff-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 14px;
 }
-
 .diff-table th {
   text-align: left;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   color: #718096;
   padding: 5px 8px;
   white-space: nowrap;
-  width: 115px;
+  width: 110px;
   vertical-align: middle;
 }
-
 .diff-table td {
   padding: 6px 8px;
   font-weight: 700;
@@ -218,15 +300,8 @@ header h1 {
   word-break: break-all;
   vertical-align: middle;
 }
-
-.diff-table tr:first-child td {
-  border-bottom: 1px solid #e2e8f0;
-  padding-bottom: 8px;
-}
-
-.diff-table tr:last-child td {
-  padding-top: 8px;
-}
+.diff-table tr:first-child td { border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+.diff-table tr:last-child  td { padding-top: 8px; }
 
 .char-error {
   color: #dc2626;
@@ -237,7 +312,6 @@ header h1 {
   font-weight: 900;
   display: inline-block;
 }
-
 .char-correct {
   color: #16a34a;
   background-color: #dcfce7;
@@ -248,6 +322,11 @@ header h1 {
   display: inline-block;
 }
 
+/* field-level error/correct for expansion inputs */
+.field-error   { border-color: #ef4444 !important; background: #fee2e2 !important; color: #dc2626 !important; }
+.field-correct { border-color: #86efac !important; background: #dcfce7 !important; color: #16a34a !important; }
+
+/* ── Rule box ── */
 .rule-box {
   background: #ebf8ff;
   border-left: 4px solid #63b3ed;
@@ -260,25 +339,31 @@ header h1 {
 
 /* ── Mobile ── */
 @media (max-width: 480px) {
-  header h1 { font-size: 1.05rem; }
+  body { padding: 12px 12px 40px; }
+  header h1 { font-size: 1rem; }
+
+  .tab-btn { padding: 7px 14px; font-size: 0.82rem; }
+  #share-btn { padding: 7px 10px; font-size: 0.78rem; }
 
   .counter-board { gap: 8px; }
-  .counter-item  { padding: 8px 10px; min-width: 66px; }
+  .counter-item  { padding: 8px 10px; min-width: 64px; }
   .counter-value { font-size: 1.55rem; }
-  .counter-label { font-size: 0.68rem; }
+  .counter-label { font-size: 0.66rem; }
 
   .card { padding: 16px 14px; }
 
-  .equation-display { font-size: 1.45rem; }
+  .equation-display { font-size: 1.5rem; }
 
-  #answer-input { width: 125px; font-size: 1rem; }
-  .x-label      { font-size: 1.1rem; }
+  #eq-answer { width: 125px; font-size: 1rem; }
+  .x-label, .equals-label, .exp-x-label { font-size: 1.1rem; }
 
-  .result-badge { font-size: 1.1rem; }
+  #exp-coeff { width: 70px; font-size: 1rem; }
+  #exp-const { width: 62px; font-size: 1rem; }
+  .sign-toggle-btn { width: 44px; height: 38px; font-size: 1.2rem; }
 
-  .diff-table th { width: 90px; font-size: 0.7rem; }
-  .diff-table td { font-size: 0.95rem; }
-
+  .result-badge { font-size: 1.05rem; }
+  .diff-table th { width: 88px; font-size: 0.68rem; }
+  .diff-table td { font-size: 0.92rem; }
   .rule-box { font-size: 0.82rem; }
 }
 </style>
@@ -286,126 +371,137 @@ header h1 {
 <body>
 
 <header>
-  <h1>方程式の式変形 反復ドリル</h1>
+  <h1>最数学</h1>
 </header>
 
-<div class="counter-board">
-  <div class="counter-item">
-    <div class="counter-label">問題数</div>
-    <span class="counter-value total" id="cnt-total">0</span>
+<div class="top-bar">
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="equation">方程式</button>
+    <button class="tab-btn" data-tab="expansion">展開</button>
   </div>
-  <div class="counter-item">
-    <div class="counter-label">⭕️ 正解</div>
-    <span class="counter-value correct" id="cnt-correct">0</span>
+  <button id="share-btn">📤 共有</button>
+</div>
+
+<!-- ═══════════════ 方程式タブ ═══════════════ -->
+<div id="tab-equation" class="tab-panel active">
+  <div class="counter-board">
+    <div class="counter-item">
+      <div class="counter-label">問題数</div>
+      <span class="counter-value total"   id="eq-cnt-total">0</span>
+    </div>
+    <div class="counter-item">
+      <div class="counter-label">⭕️ 正解</div>
+      <span class="counter-value correct" id="eq-cnt-correct">0</span>
+    </div>
+    <div class="counter-item">
+      <div class="counter-label">❌ ミス</div>
+      <span class="counter-value miss"    id="eq-cnt-miss">0</span>
+    </div>
   </div>
-  <div class="counter-item">
-    <div class="counter-label">❌ ミス</div>
-    <span class="counter-value miss" id="cnt-miss">0</span>
+
+  <div class="card">
+    <p class="instruction">次の式を「x = 式」の形に変形しなさい。（※計算はしない）</p>
+    <div class="equation-display" id="eq-equation"></div>
+
+    <div class="eq-input-row">
+      <span class="x-label">x =</span>
+      <input type="text" id="eq-answer" class="answer-input" placeholder="例: -2+1"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+
+    <p class="hint-text">移項: 5-3 や -8+2 と書く &nbsp;／&nbsp; 係数処理: -8/2 や 6/-3 と書く</p>
+
+    <button class="submit-btn" id="eq-submit-btn">判定する</button>
+
+    <div id="eq-feedback" class="feedback">
+      <div id="eq-result-badge" class="result-badge"></div>
+      <table class="diff-table">
+        <tr><th>あなたの入力</th><td id="eq-user-display"></td></tr>
+        <tr><th>書くべき正解</th><td id="eq-expected-display"></td></tr>
+      </table>
+      <div id="eq-rule-box" class="rule-box"></div>
+    </div>
   </div>
 </div>
 
-<div class="card">
-  <p class="instruction">次の式を「x = 式」の形に変形しなさい。（※計算はしない）</p>
-  <div class="equation-display" id="equation"></div>
-
-  <div class="input-row">
-    <span class="x-label">x =</span>
-    <input type="text" id="answer-input" placeholder="例: -2+1"
-           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+<!-- ═══════════════ 展開タブ ═══════════════ -->
+<div id="tab-expansion" class="tab-panel">
+  <div class="counter-board">
+    <div class="counter-item">
+      <div class="counter-label">問題数</div>
+      <span class="counter-value total"   id="exp-cnt-total">0</span>
+    </div>
+    <div class="counter-item">
+      <div class="counter-label">⭕️ 正解</div>
+      <span class="counter-value correct" id="exp-cnt-correct">0</span>
+    </div>
+    <div class="counter-item">
+      <div class="counter-label">❌ ミス</div>
+      <span class="counter-value miss"    id="exp-cnt-miss">0</span>
+    </div>
   </div>
 
-  <p class="hint-text">
-    移項: 5-3 や -8+2 と書く &nbsp;／&nbsp; 係数処理: -8/2 や 6/-3 と書く
-  </p>
+  <div class="card">
+    <p class="instruction">括弧を展開しなさい。係数・符号・定数の3か所を入力する。</p>
+    <div class="equation-display" id="exp-equation"></div>
 
-  <button id="submit-btn">判定する</button>
+    <div class="exp-input-row">
+      <span class="equals-label">=</span>
+      <input type="text" id="exp-coeff" class="answer-input" placeholder="-6"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <span class="exp-x-label">x</span>
+      <button type="button" id="exp-sign-btn" class="sign-toggle-btn" data-value="+">＋</button>
+      <input type="text" id="exp-const" class="answer-input" placeholder="8"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
 
-  <div id="feedback-box" class="feedback">
-    <div id="result-badge" class="result-badge"></div>
-    <table class="diff-table" id="diff-table">
-      <tr>
-        <th>あなたの入力</th>
-        <td id="user-display"></td>
-      </tr>
-      <tr>
-        <th>書くべき正解</th>
-        <td id="expected-display"></td>
-      </tr>
-    </table>
-    <div id="rule-box" class="rule-box"></div>
+    <p class="hint-text">x の係数（例: -6）→ 符号ボタンをタップで切替 → 定数（例: 8）</p>
+
+    <button class="submit-btn" id="exp-submit-btn">判定する</button>
+
+    <div id="exp-feedback" class="feedback">
+      <div id="exp-result-badge" class="result-badge"></div>
+      <table class="diff-table">
+        <tr><th>あなたの入力</th><td id="exp-user-display"></td></tr>
+        <tr><th>書くべき正解</th><td id="exp-expected-display"></td></tr>
+      </table>
+      <div id="exp-rule-box" class="rule-box"></div>
+    </div>
   </div>
 </div>
 
 <script>
-// ── State ────────────────────────────────────────────────────────────────────
-let totalCount   = 0;
-let correctCount = 0;
-let missCount    = 0;
-let isAnswered   = false;
-let currentProblem = null;
+// ── Tab switching ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
 
-// ── Problem generation ────────────────────────────────────────────────────────
+// ── Shared utilities ──────────────────────────────────────────────────────────
 function randInt(lo, hi) {
   return Math.floor(Math.random() * (hi - lo + 1)) + lo;
 }
 
-function randNonZero() {
-  let n;
-  do { n = randInt(-9, 9); } while (n === 0);
-  return n;
-}
-
-// a in [-9,9] \ {0,1}
-function randCoeff() {
-  let n;
-  do { n = randInt(-9, 9); } while (n === 0 || n === 1);
-  return n;
-}
-
-function generateProblem() {
-  if (Math.random() < 0.5) {
-    // Pattern A: x ± a = b
-    const a = randNonZero();
-    const b = randNonZero();
-    let displayEq, expected, ruleText;
-
-    if (a > 0) {
-      displayEq = `x + ${a} = ${b}`;
-      expected  = `${b}-${a}`;
-      ruleText  = `左辺の「+${a}」を右辺に移すときは、符号をひっくり返して「−${a}」にします。`;
-    } else {
-      const absA = Math.abs(a);
-      displayEq = `x - ${absA} = ${b}`;
-      expected  = `${b}+${absA}`;
-      ruleText  = `左辺の「−${absA}」を右辺に移すときは、符号をひっくり返して「+${absA}」にします。`;
-    }
-    return { displayEq, expected, ruleText };
-
-  } else {
-    // Pattern B: ax = b
-    const a = randCoeff();
-    const b = randNonZero();
-
-    let displayEq;
-    if (a === -1)      displayEq = `-x = ${b}`;
-    else if (a < 0)    displayEq = `${a}x = ${b}`;
-    else               displayEq = `${a}x = ${b}`;
-
-    const expected = `${b}/${a}`;
-    const ruleText = `x に掛けてある係数「${a}」で両辺を割るため、右辺は「${b}/${a}」にします。（掛け算・割り算の移動では符号は変えません）`;
-    return { displayEq, expected, ruleText };
-  }
-}
-
-// ── Input processing ──────────────────────────────────────────────────────────
 function normalizeString(s) {
-  s = s.replace(/[\s　]/g, '');          // remove spaces (including full-width)
-  s = s.replace(/^[xX]\s*=\s*/, '');         // strip leading x=
+  s = s.replace(/[\s　]/g, '');
+  s = s.replace(/^[xX]\s*=\s*/, '');
   s = s.replace(/[＋]/g, '+');
-  s = s.replace(/[－−ー‐‑‒–—―−]/g, '-');
+  s = s.replace(/[－−ー‐‑‒–—―−−]/g, '-');
   s = s.replace(/[÷]/g, '/');
   s = s.replace(/[／]/g, '/');
   s = s.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFF10 + 0x30));
+  s = s.replace(/[ｘＸ]/g, 'x');
+  return s;
+}
+
+// For integer fields: also strip leading '+'
+function normalizeInt(s) {
+  s = normalizeString(s);
+  if (s.startsWith('+')) s = s.slice(1);
   return s;
 }
 
@@ -413,7 +509,10 @@ function isPureValueInput(s) {
   return !s.includes('+') && !s.includes('/') && /^-?\d+(\.\d+)?$/.test(s);
 }
 
-// 分数・加減式を有理数 {n, d} に解析する
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function evalSimpleExpr(s) {
   const si = s.lastIndexOf('/');
   if (si > 0) {
@@ -435,192 +534,361 @@ function evalSimpleExpr(s) {
   return isNaN(n) ? null : { n, d: 1 };
 }
 
-// 文字列は違うが値が等しい（例: "-8/3" と "8/-3"）かを判定
 function isMathEquivalent(userVal, expectedVal) {
   const u = evalSimpleExpr(userVal), e = evalSimpleExpr(expectedVal);
   return !!(u && e && u.n * e.d === u.d * e.n);
 }
 
-function escHtml(s) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-// ── Diff visual ───────────────────────────────────────────────────────────────
 function buildDiffVisual(userStr, expectedStr) {
   const maxLen = Math.max(userStr.length, expectedStr.length);
-  let userHtml = '', expHtml = '';
-
+  let uHtml = '', eHtml = '';
   for (let i = 0; i < maxLen; i++) {
-    const uc = i < userStr.length   ? userStr[i]     : null;
+    const uc = i < userStr.length    ? userStr[i]     : null;
     const ec = i < expectedStr.length ? expectedStr[i] : null;
-
     if (uc === ec) {
-      if (uc !== null) userHtml += escHtml(uc);
-      if (ec !== null) expHtml  += escHtml(ec);
+      if (uc !== null) uHtml += escHtml(uc);
+      if (ec !== null) eHtml += escHtml(ec);
     } else {
-      if (uc !== null) userHtml += `<span class="char-error">${escHtml(uc)}</span>`;
-      if (ec !== null) expHtml  += `<span class="char-correct">${escHtml(ec)}</span>`;
+      if (uc !== null) uHtml += `<span class="char-error">${escHtml(uc)}</span>`;
+      if (ec !== null) eHtml += `<span class="char-correct">${escHtml(ec)}</span>`;
     }
   }
-  return { userHtml, expHtml };
+  return { uHtml, eHtml };
 }
 
-// ── Sound ─────────────────────────────────────────────────────────────────────
 function playTone(freqs, type, vol) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     freqs.forEach((freq, i) => {
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = type;
-      osc.frequency.value = freq;
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = type; osc.frequency.value = freq;
       const t = ctx.currentTime + i * 0.18;
       gain.gain.setValueAtTime(vol, t);
       gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
-      osc.start(t);
-      osc.stop(t + 0.3);
+      osc.start(t); osc.stop(t + 0.3);
     });
-  } catch (e) {}
+  } catch(e) {}
 }
-
 const playCorrectSound   = () => playTone([659, 880], 'sine',     0.28);
 const playIncorrectSound = () => playTone([140, 110], 'sawtooth', 0.25);
 
-// ── Counter animation ─────────────────────────────────────────────────────────
 function animateCounter(elId, floatText, floatColor) {
   const el = document.getElementById(elId);
   el.classList.remove('bounce');
-  void el.offsetWidth; // force reflow
+  void el.offsetWidth;
   el.classList.add('bounce');
   el.addEventListener('animationend', () => el.classList.remove('bounce'), { once: true });
-
-  const floater = document.createElement('span');
-  floater.className = 'plus-one-float';
-  floater.textContent = floatText;
-  floater.style.color = floatColor;
-  el.closest('.counter-item').appendChild(floater);
-  setTimeout(() => floater.remove(), 820);
+  const f = document.createElement('span');
+  f.className = 'plus-one-float';
+  f.textContent = floatText;
+  f.style.color = floatColor;
+  el.closest('.counter-item').appendChild(f);
+  setTimeout(() => f.remove(), 820);
 }
 
-// ── Load new problem ──────────────────────────────────────────────────────────
-function loadNewProblem() {
-  currentProblem = generateProblem();
-  document.getElementById('equation').textContent = currentProblem.displayEq;
+function getCount(id) { return parseInt(document.getElementById(id).textContent, 10) || 0; }
+function setCount(id, n) { document.getElementById(id).textContent = n; }
 
-  const input = document.getElementById('answer-input');
-  input.value    = '';
-  input.disabled = false;
+// ── Share ─────────────────────────────────────────────────────────────────────
+document.getElementById('share-btn').addEventListener('click', async () => {
+  const eqT = getCount('eq-cnt-total'), eqC = getCount('eq-cnt-correct'), eqM = getCount('eq-cnt-miss');
+  const exT = getCount('exp-cnt-total'), exC = getCount('exp-cnt-correct'), exM = getCount('exp-cnt-miss');
+  const secs = Math.floor((Date.now() - startTime) / 1000);
+  const elapsedStr = secs < 60 ? `${secs}秒` : `${Math.floor(secs / 60)}分${secs % 60}秒`;
+  const text = [
+    '📐 最数学 結果',
+    '',
+    `【方程式】${eqT}問　⭕️${eqC}問　❌${eqM}問`,
+    `【展開】　${exT}問　⭕️${exC}問　❌${exM}問`,
+    `⏱ ${elapsedStr}`,
+  ].join('\n');
 
-  const fb = document.getElementById('feedback-box');
-  fb.className = 'feedback';
+  if (navigator.share) {
+    try { await navigator.share({ title: '最数学 結果', text }); return; } catch(e) {}
+  }
+  window.open('https://line.me/R/share?text=' + encodeURIComponent(text), '_blank');
+});
 
-  const btn = document.getElementById('submit-btn');
-  btn.textContent = '判定する';
-  btn.className   = '';
+// ═══════════════════════════════════════════════════════════════════════════════
+// 方程式タブ
+// ═══════════════════════════════════════════════════════════════════════════════
+let eqAnswered = false;
+let eqProblem  = null;
 
-  isAnswered = false;
-  input.focus();
+function randNonZero() { let n; do { n = randInt(-9, 9); } while (n === 0); return n; }
+function randCoeff()   { let n; do { n = randInt(-9, 9); } while (n === 0 || n === 1); return n; }
+
+function generateEqProblem() {
+  if (Math.random() < 0.5) {
+    const a = randNonZero(), b = randNonZero();
+    if (a > 0) {
+      return {
+        displayEq: `x + ${a} = ${b}`,
+        expected:  `${b}-${a}`,
+        ruleText:  `左辺の「+${a}」を右辺に移すときは、符号をひっくり返して「−${a}」にします。`
+      };
+    } else {
+      const absA = Math.abs(a);
+      return {
+        displayEq: `x - ${absA} = ${b}`,
+        expected:  `${b}+${absA}`,
+        ruleText:  `左辺の「−${absA}」を右辺に移すときは、符号をひっくり返して「+${absA}」にします。`
+      };
+    }
+  } else {
+    const a = randCoeff(), b = randNonZero();
+    return {
+      displayEq: a === -1 ? `-x = ${b}` : `${a}x = ${b}`,
+      expected:  `${b}/${a}`,
+      ruleText:  `x に掛けてある係数「${a}」で両辺を割るため、右辺は「${b}/${a}」にします。（掛け算・割り算の移動では符号は変えません）`
+    };
+  }
 }
 
-// ── Submit handler ────────────────────────────────────────────────────────────
-function handleSubmit() {
-  if (isAnswered) { loadNewProblem(); return; }
+function eqLoadNew() {
+  eqProblem  = generateEqProblem();
+  eqAnswered = false;
+  document.getElementById('eq-equation').textContent = eqProblem.displayEq;
+  const inp = document.getElementById('eq-answer');
+  inp.value = ''; inp.disabled = false; inp.classList.remove('field-error', 'field-correct');
+  const btn = document.getElementById('eq-submit-btn');
+  btn.textContent = '判定する'; btn.className = 'submit-btn';
+  document.getElementById('eq-feedback').className = 'feedback';
+  inp.focus();
+}
 
-  const raw  = document.getElementById('answer-input').value.trim();
+function eqSubmit() {
+  if (eqAnswered) { eqLoadNew(); return; }
+  const raw = document.getElementById('eq-answer').value.trim();
   if (!raw) return;
 
   const userVal     = normalizeString(raw);
-  const expectedVal = currentProblem.expected;
+  const expectedVal = eqProblem.expected;
   const isPure      = isPureValueInput(userVal);
   const isCorrect   = !isPure && userVal === expectedVal;
-  const isSameValue = !isPure && !isCorrect && isMathEquivalent(userVal, expectedVal);
+  const isSameVal   = !isPure && !isCorrect && isMathEquivalent(userVal, expectedVal);
 
-  // Increment total
-  totalCount++;
-  document.getElementById('cnt-total').textContent = totalCount;
-  animateCounter('cnt-total', '+1', '#4a5568');
+  const newTotal = getCount('eq-cnt-total') + 1;
+  setCount('eq-cnt-total', newTotal);
+  animateCounter('eq-cnt-total', '+1', '#4a5568');
 
-  // Disable input, switch button
-  const input = document.getElementById('answer-input');
-  input.disabled = true;
-  const btn = document.getElementById('submit-btn');
-  btn.textContent = '次の問題へ（Enter）';
-  btn.className   = 'next-mode';
-  isAnswered = true;
+  document.getElementById('eq-answer').disabled = true;
+  const btn = document.getElementById('eq-submit-btn');
+  btn.textContent = '次の問題へ（Enter）'; btn.className = 'submit-btn next-mode';
+  eqAnswered = true;
 
-  const fb           = document.getElementById('feedback-box');
-  const badge        = document.getElementById('result-badge');
-  const userDisp     = document.getElementById('user-display');
-  const expDisp      = document.getElementById('expected-display');
-  const ruleBox      = document.getElementById('rule-box');
-
-  ruleBox.textContent = currentProblem.ruleText;
+  const fb    = document.getElementById('eq-feedback');
+  const badge = document.getElementById('eq-result-badge');
+  const uDisp = document.getElementById('eq-user-display');
+  const eDisp = document.getElementById('eq-expected-display');
+  document.getElementById('eq-rule-box').textContent = eqProblem.ruleText;
 
   if (isCorrect) {
-    // ── Case 1: Correct ───────────────────────────────────────────────
-    correctCount++;
-    document.getElementById('cnt-correct').textContent = correctCount;
-    animateCounter('cnt-correct', '+1', '#38a169');
+    setCount('eq-cnt-correct', getCount('eq-cnt-correct') + 1);
+    animateCounter('eq-cnt-correct', '+1', '#38a169');
     playCorrectSound();
-
     fb.className = 'feedback correct';
-    badge.className = 'result-badge correct-badge';
-    badge.textContent = '⭕️ 大正解！';
+    badge.className = 'result-badge correct-badge'; badge.textContent = '⭕️ 大正解！';
+    uDisp.innerHTML = `x = ${escHtml(raw)}`;
+    eDisp.innerHTML = `x = <span class="char-correct">${escHtml(expectedVal)}</span>`;
 
-    userDisp.innerHTML = `x = ${escHtml(raw)}`;
-    expDisp.innerHTML  = `x = <span class="char-correct">${escHtml(expectedVal)}</span>`;
-
-  } else if (isPure || isSameValue) {
-    // ── Case 2: Calculated-value or equivalent-but-wrong-form warning ─
-    missCount++;
-    document.getElementById('cnt-miss').textContent = missCount;
-    animateCounter('cnt-miss', '+1', '#e53e3e');
+  } else if (isPure || isSameVal) {
+    setCount('eq-cnt-miss', getCount('eq-cnt-miss') + 1);
+    animateCounter('eq-cnt-miss', '+1', '#e53e3e');
     playIncorrectSound();
-
     fb.className = 'feedback calculated-warning';
     badge.className = 'result-badge warning-badge';
     badge.textContent = '⚠️ 不正解（計算後の値ではなく式を書く）';
-
-    userDisp.innerHTML = isPure
+    uDisp.innerHTML = isPure
       ? `x = ${escHtml(raw)}（計算後の答え）`
       : `x = ${escHtml(raw)}（書き方が違います）`;
-    expDisp.innerHTML  = `x = <span class="char-correct">${escHtml(expectedVal)}</span>`;
+    eDisp.innerHTML = `x = <span class="char-correct">${escHtml(expectedVal)}</span>`;
 
   } else {
-    // ── Case 3: Wrong expression ──────────────────────────────────────
-    missCount++;
-    document.getElementById('cnt-miss').textContent = missCount;
-    animateCounter('cnt-miss', '+1', '#e53e3e');
+    setCount('eq-cnt-miss', getCount('eq-cnt-miss') + 1);
+    animateCounter('eq-cnt-miss', '+1', '#e53e3e');
     playIncorrectSound();
-
     fb.className = 'feedback incorrect';
-    badge.className = 'result-badge error-badge';
-    badge.textContent = '❌ 不正解（間違っています）';
-
-    const { userHtml, expHtml } = buildDiffVisual(userVal, expectedVal);
-    userDisp.innerHTML = `x = ${userHtml}`;
-    expDisp.innerHTML  = `x = ${expHtml}`;
+    badge.className = 'result-badge error-badge'; badge.textContent = '❌ 不正解（間違っています）';
+    const { uHtml, eHtml } = buildDiffVisual(userVal, expectedVal);
+    uDisp.innerHTML = `x = ${uHtml}`;
+    eDisp.innerHTML = `x = ${eHtml}`;
   }
 }
 
-// ── Event listeners ───────────────────────────────────────────────────────────
-document.getElementById('submit-btn').addEventListener('click', handleSubmit);
-
-document.getElementById('answer-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') { e.preventDefault(); handleSubmit(); }
+document.getElementById('eq-submit-btn').addEventListener('click', eqSubmit);
+document.getElementById('eq-answer').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); eqSubmit(); }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// 展開タブ
+// ═══════════════════════════════════════════════════════════════════════════════
+let expAnswered = false;
+let expProblem  = null;
+
+// Sign toggle button
+const signBtn = document.getElementById('exp-sign-btn');
+signBtn.addEventListener('click', () => {
+  if (expAnswered) return;
+  const next = signBtn.dataset.value === '+' ? '-' : '+';
+  signBtn.dataset.value = next;
+  signBtn.textContent   = next === '+' ? '＋' : '－';
+});
+
+function randExpA() {
+  const pool = [-5,-4,-3,-2,2,3,4,5];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function generateExpProblem() {
+  const a = randExpA();
+  const b = randInt(1, 5);       // inner x coefficient, positive
+  let c;
+  do { c = randInt(-5, 5); } while (c === 0);
+
+  // Display: a(bx + c) or a(bx - |c|)
+  const innerX   = b === 1 ? 'x' : `${b}x`;
+  const innerStr = c > 0
+    ? `${innerX}+${c}`
+    : `${innerX}-${Math.abs(c)}`;
+
+  const aStr = a < 0 ? `-${Math.abs(a)}` : `${a}`;
+  const displayEq = `${aStr}(${innerStr})`;
+
+  const coeff    = a * b;
+  const constant = a * c;
+
+  // expected: [coeff]x [sign] [|constant|]
+  const expectedSign  = constant > 0 ? '+' : '-';
+  const expectedConst = Math.abs(constant);
+
+  const innerXRule = b === 1 ? 'x' : `${b}x`;
+  const ruleText = `括弧の外の「${a}」を中の各項に掛けます。` +
+    `${a}×${innerXRule}=${coeff}x、${a}×(${c})=${constant}。`;
+
+  return { displayEq, coeff, expectedSign, expectedConst, ruleText };
+}
+
+function expLoadNew() {
+  expProblem  = generateExpProblem();
+  expAnswered = false;
+  document.getElementById('exp-equation').textContent = expProblem.displayEq;
+
+  const coeffEl = document.getElementById('exp-coeff');
+  const constEl = document.getElementById('exp-const');
+  coeffEl.value = ''; coeffEl.disabled = false;
+  constEl.value = ''; constEl.disabled = false;
+  [coeffEl, constEl, signBtn].forEach(el => el.classList.remove('field-error', 'field-correct'));
+
+  signBtn.dataset.value = '+';
+  signBtn.textContent   = '＋';
+  signBtn.disabled      = false;
+
+  const btn = document.getElementById('exp-submit-btn');
+  btn.textContent = '判定する'; btn.className = 'submit-btn';
+  document.getElementById('exp-feedback').className = 'feedback';
+  coeffEl.focus();
+}
+
+function expSubmit() {
+  if (expAnswered) { expLoadNew(); return; }
+
+  const rawCoeff = document.getElementById('exp-coeff').value.trim();
+  const rawConst = document.getElementById('exp-const').value.trim();
+  if (!rawCoeff || !rawConst) return;
+
+  const normCoeff  = normalizeInt(rawCoeff);
+  const normConst  = normalizeInt(rawConst);
+  const signVal    = signBtn.dataset.value;
+
+  const parsedCoeff = parseInt(normCoeff, 10);
+  const parsedConst = parseInt(normConst, 10);
+
+  const coeffOk = !isNaN(parsedCoeff) && parsedCoeff === expProblem.coeff;
+  const signOk  = signVal === expProblem.expectedSign;
+  const constOk = !isNaN(parsedConst) && parsedConst === expProblem.expectedConst;
+  const isCorrect = coeffOk && signOk && constOk;
+
+  const newTotal = getCount('exp-cnt-total') + 1;
+  setCount('exp-cnt-total', newTotal);
+  animateCounter('exp-cnt-total', '+1', '#4a5568');
+
+  document.getElementById('exp-coeff').disabled = true;
+  document.getElementById('exp-const').disabled = true;
+  signBtn.disabled = true;
+
+  const btn = document.getElementById('exp-submit-btn');
+  btn.textContent = '次の問題へ（Enter）'; btn.className = 'submit-btn next-mode';
+  expAnswered = true;
+
+  // Field-level highlight
+  document.getElementById('exp-coeff').classList.add(coeffOk ? 'field-correct' : 'field-error');
+  signBtn.classList.add(signOk ? 'field-correct' : 'field-error');
+  document.getElementById('exp-const').classList.add(constOk ? 'field-correct' : 'field-error');
+
+  const fb    = document.getElementById('exp-feedback');
+  const badge = document.getElementById('exp-result-badge');
+  const uDisp = document.getElementById('exp-user-display');
+  const eDisp = document.getElementById('exp-expected-display');
+  document.getElementById('exp-rule-box').textContent = expProblem.ruleText;
+
+  const signChar    = signVal === '+' ? '＋' : '－';
+  const expSignChar = expProblem.expectedSign === '+' ? '＋' : '－';
+
+  const cc = (ok, txt) => ok
+    ? `<span class="char-correct">${escHtml(txt)}</span>`
+    : `<span class="char-error">${escHtml(txt)}</span>`;
+
+  uDisp.innerHTML = `${cc(coeffOk, rawCoeff)}x ${cc(signOk, signChar)} ${cc(constOk, rawConst)}`;
+  eDisp.innerHTML =
+    `<span class="char-correct">${escHtml(String(expProblem.coeff))}</span>x ` +
+    `<span class="char-correct">${expSignChar}</span> ` +
+    `<span class="char-correct">${escHtml(String(expProblem.expectedConst))}</span>`;
+
+  if (isCorrect) {
+    setCount('exp-cnt-correct', getCount('exp-cnt-correct') + 1);
+    animateCounter('exp-cnt-correct', '+1', '#38a169');
+    playCorrectSound();
+    fb.className = 'feedback correct';
+    badge.className = 'result-badge correct-badge'; badge.textContent = '⭕️ 大正解！';
+  } else {
+    setCount('exp-cnt-miss', getCount('exp-cnt-miss') + 1);
+    animateCounter('exp-cnt-miss', '+1', '#e53e3e');
+    playIncorrectSound();
+    fb.className = 'feedback incorrect';
+    badge.className = 'result-badge error-badge'; badge.textContent = '❌ 不正解（間違っています）';
+  }
+}
+
+document.getElementById('exp-submit-btn').addEventListener('click', expSubmit);
+['exp-coeff', 'exp-const'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); expSubmit(); }
+  });
+});
+
+// ── Global Enter key (after answering) ───────────────────────────────────────
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && isAnswered &&
-      document.activeElement !== document.getElementById('answer-input')) {
-    handleSubmit();
+  if (e.key !== 'Enter') return;
+  const activeId = document.activeElement ? document.activeElement.id : '';
+  if (document.getElementById('tab-equation').classList.contains('active')) {
+    if (activeId !== 'eq-answer' && eqAnswered) eqSubmit();
+  } else if (document.getElementById('tab-expansion').classList.contains('active')) {
+    if (activeId !== 'exp-coeff' && activeId !== 'exp-const' && expAnswered) expSubmit();
   }
 });
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-loadNewProblem();
+// ── Initialize ────────────────────────────────────────────────────────────────
+const startTime = Date.now();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+eqLoadNew();
+expLoadNew();
 </script>
 </body>
 </html>

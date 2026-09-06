@@ -102,9 +102,10 @@ header h1 { font-size: 1.25rem; color: #2d3748; font-weight: 800; }
   line-height: 1;
   display: inline-block;
 }
-.counter-value.total   { color: #2d3748; }
-.counter-value.correct { color: #38a169; }
-.counter-value.miss    { color: #e53e3e; }
+.counter-value.total     { color: #2d3748; }
+.counter-value.correct   { color: #38a169; }
+.counter-value.miss      { color: #e53e3e; }
+.counter-value.corrected { color: #d69e2e; }
 
 @keyframes popBounce {
   0%   { transform: scale(1); }
@@ -337,13 +338,108 @@ header h1 { font-size: 1.25rem; color: #2d3748; font-weight: 800; }
   line-height: 1.65;
 }
 
+/* ── QF (解の公式) tab ── */
+.qf-step-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #4a5568;
+  margin: 14px 0 6px;
+  text-align: center;
+}
+.qf-frac-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+  overflow-x: auto;
+  padding: 4px 0;
+}
+.qf-step-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.qf-sym {
+  font-size: 1rem;
+  color: #2d3748;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.qf-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+}
+.qf-num {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 4px 8px;
+  border-bottom: 2px solid #2d3748;
+  justify-content: center;
+}
+.qf-den {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  justify-content: center;
+}
+.qf-radical {
+  display: inline-flex;
+  align-items: flex-start;
+  vertical-align: middle;
+}
+.qf-radical-sign {
+  font-size: 2rem;
+  line-height: 0.80;
+  margin-right: 1px;
+  color: #2d3748;
+}
+.qf-radicand {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  border-top: 2px solid #2d3748;
+  padding: 3px 4px 0 2px;
+}
+.qf-inp {
+  width: 52px !important;
+  font-size: 0.9rem !important;
+  padding: 5px 4px !important;
+  text-align: center;
+}
+.qf-answer-box {
+  background: #c6f6d5;
+  border-left: 4px solid #38a169;
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 1.05rem;
+  color: #276749;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
 /* ── Mobile ── */
 @media (max-width: 480px) {
   body { padding: 12px 12px 40px; }
   header h1 { font-size: 1rem; }
 
-  .tab-btn { padding: 7px 14px; font-size: 0.82rem; }
-  #share-btn { padding: 7px 10px; font-size: 0.78rem; }
+  .tab-btn { padding: 6px 10px; font-size: 0.78rem; }
+  #share-btn { padding: 6px 9px; font-size: 0.76rem; }
+
+  .qf-sym { font-size: 0.85rem; }
+  .qf-inp { width: 46px !important; font-size: 0.8rem !important; }
+  .qf-radical-sign { font-size: 1.65rem; }
+  .qf-step-label { font-size: 0.74rem; }
 
   .counter-board { gap: 8px; }
   .counter-item  { padding: 8px 10px; min-width: 64px; }
@@ -378,6 +474,7 @@ header h1 { font-size: 1.25rem; color: #2d3748; font-weight: 800; }
   <div class="tab-bar">
     <button class="tab-btn active" data-tab="equation">方程式</button>
     <button class="tab-btn" data-tab="expansion">展開</button>
+    <button class="tab-btn" data-tab="quadratic">解の公式</button>
   </div>
   <button id="share-btn">📤 共有</button>
 </div>
@@ -466,6 +563,106 @@ header h1 { font-size: 1.25rem; color: #2d3748; font-weight: 800; }
         <tr><th>書くべき正解</th><td id="exp-expected-display"></td></tr>
       </table>
       <div id="exp-rule-box" class="rule-box"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 解の公式タブ ═══════════════ -->
+<div id="tab-quadratic" class="tab-panel">
+  <div class="counter-board">
+    <div class="counter-item">
+      <div class="counter-label">問題数</div>
+      <span class="counter-value total"   id="qf-cnt-total">0</span>
+    </div>
+    <div class="counter-item">
+      <div class="counter-label">⭕️ 正解</div>
+      <span class="counter-value correct" id="qf-cnt-correct">0</span>
+    </div>
+    <div class="counter-item">
+      <div class="counter-label">△ 訂正</div>
+      <span class="counter-value corrected" id="qf-cnt-corrected">0</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="instruction">解の公式を使って方程式を解きなさい。各ステップの値を入力する。</p>
+    <div class="equation-display" id="qf-equation"></div>
+
+    <!-- ① 代入 -->
+    <div class="qf-step-label">① 解の公式に <i>a</i>, <i>b</i>, <i>c</i> の値を代入する</div>
+    <div class="qf-frac-wrap">
+      <span class="qf-sym"><i>x</i> =</span>
+      <div class="qf-frac">
+        <div class="qf-num">
+          <span class="qf-sym">−(</span>
+          <input type="text" id="qf-b1" class="answer-input qf-inp" placeholder="b"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <span class="qf-sym">)&thinsp;±</span>
+          <span class="qf-radical">
+            <span class="qf-radical-sign">√</span>
+            <span class="qf-radicand">
+              <span class="qf-sym">(</span>
+              <input type="text" id="qf-b2" class="answer-input qf-inp" placeholder="b"
+                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <span class="qf-sym">)<sup>2</sup>&thinsp;−&thinsp;4·(</span>
+              <input type="text" id="qf-a1" class="answer-input qf-inp" placeholder="a"
+                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <span class="qf-sym">)·(</span>
+              <input type="text" id="qf-c1" class="answer-input qf-inp" placeholder="c"
+                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <span class="qf-sym">)</span>
+            </span>
+          </span>
+        </div>
+        <div class="qf-den">
+          <span class="qf-sym">2·(</span>
+          <input type="text" id="qf-a2" class="answer-input qf-inp" placeholder="a"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <span class="qf-sym">)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 計算 -->
+    <div class="qf-step-label">② 各値を計算する</div>
+    <div class="qf-frac-wrap">
+      <span class="qf-sym"><i>x</i> =</span>
+      <div class="qf-frac">
+        <div class="qf-num">
+          <input type="text" id="qf-neg-b" class="answer-input qf-inp" placeholder="-b"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+          <span class="qf-sym">&thinsp;±</span>
+          <span class="qf-radical">
+            <span class="qf-radical-sign">√</span>
+            <span class="qf-radicand">
+              <input type="text" id="qf-bsq" class="answer-input qf-inp" placeholder="b²"
+                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+              <span class="qf-sym">−</span>
+              <input type="text" id="qf-4ac" class="answer-input qf-inp" placeholder="4ac"
+                     autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            </span>
+          </span>
+        </div>
+        <div class="qf-den">
+          <input type="text" id="qf-2a" class="answer-input qf-inp" placeholder="2a"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 判別式 -->
+    <div class="qf-step-label">③ 判別式 &ensp; <i>D</i> = <i>b</i><sup>2</sup> − 4<i>ac</i></div>
+    <div class="qf-step-row">
+      <span class="qf-sym"><i>D</i> =</span>
+      <input type="text" id="qf-D" class="answer-input qf-inp" placeholder="?"
+             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+
+    <button class="submit-btn" id="qf-submit-btn">判定する</button>
+
+    <div id="qf-feedback" class="feedback">
+      <div id="qf-result-badge" class="result-badge"></div>
+      <div id="qf-answer-box" class="qf-answer-box" style="display:none;"></div>
     </div>
   </div>
 </div>
@@ -594,6 +791,7 @@ function setCount(id, n) { document.getElementById(id).textContent = n; }
 document.getElementById('share-btn').addEventListener('click', async () => {
   const eqT = getCount('eq-cnt-total'), eqC = getCount('eq-cnt-correct'), eqM = getCount('eq-cnt-miss');
   const exT = getCount('exp-cnt-total'), exC = getCount('exp-cnt-correct'), exM = getCount('exp-cnt-miss');
+  const qfT = getCount('qf-cnt-total'), qfC = getCount('qf-cnt-correct'), qfCorr = getCount('qf-cnt-corrected');
   const secs = Math.floor((Date.now() - startTime) / 1000);
   const elapsedStr = secs < 60 ? `${secs}秒` : `${Math.floor(secs / 60)}分${secs % 60}秒`;
   const text = [
@@ -601,6 +799,7 @@ document.getElementById('share-btn').addEventListener('click', async () => {
     '',
     `【方程式】${eqT}問　⭕️${eqC}問　❌${eqM}問`,
     `【展開】　${exT}問　⭕️${exC}問　❌${exM}問`,
+    `【解の公式】${qfT}問　⭕️${qfC}問　△${qfCorr}問`,
     `⏱ ${elapsedStr}`,
   ].join('\n');
 
@@ -877,7 +1076,166 @@ document.addEventListener('keydown', e => {
     if (activeId !== 'eq-answer' && eqAnswered) eqSubmit();
   } else if (document.getElementById('tab-expansion').classList.contains('active')) {
     if (activeId !== 'exp-coeff' && activeId !== 'exp-const' && expAnswered) expSubmit();
+  } else if (document.getElementById('tab-quadratic').classList.contains('active')) {
+    if (!qfInputIds.includes(activeId) && qfCompleted) qfSubmit();
   }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 解の公式タブ
+// ═══════════════════════════════════════════════════════════════════════════════
+let qfCompleted = false;  // 正解してからtrueになる（次の問題へ進める）
+let qfHasError  = false;  // 一度でも誤答したらtrue（訂正扱い）
+let qfProblem   = null;
+
+function buildQuadDisplay(a, b, c) {
+  const x2 = '<i>x</i><sup>2</sup>';
+  const xi  = '<i>x</i>';
+  let s = '';
+  if (a === 1)       s += x2;
+  else if (a === -1) s += '−' + x2;
+  else if (a < 0)    s += `−${Math.abs(a)}` + x2;
+  else               s += `${a}` + x2;
+  if (b > 0)       s += ` + ${b}${xi}`;
+  else if (b < 0)  s += ` − ${Math.abs(b)}${xi}`;
+  if (c > 0)       s += ` + ${c}`;
+  else if (c < 0)  s += ` − ${Math.abs(c)}`;
+  return s + ' = 0';
+}
+
+function generateQFProblem() {
+  let a, b, c, p, q;
+  do {
+    a = Math.random() < 0.5 ? 1 : 2;
+    const r = Math.random();
+    if (r < 0.10) {
+      // b = 0: 対称な根 ±p
+      const pp = randInt(1, 4);
+      p = pp; q = -pp;
+    } else if (r < 0.20) {
+      // c = 0: 一方の根が 0
+      p = 0;
+      do { q = randInt(-4, 4); } while (q === 0);
+    } else {
+      // 通常: b ≠ 0, c ≠ 0
+      do {
+        p = randInt(-3, 3);
+        q = randInt(-3, 3);
+      } while (p === q || p + q === 0 || p * q === 0);
+    }
+    b = -a * (p + q);
+    c = a * p * q;
+  } while (Math.abs(4 * a * c) > 100);
+  const twoA   = 2 * a;
+  const bSq    = b * b;
+  const fourAC = 4 * a * c;
+  const D      = bSq - fourAC; // = a²(p−q)² ≥ 0、常に完全平方数
+  const sols   = p < q ? [p, q] : [q, p];
+  return { a, b, c, twoA, bSq, fourAC, D, sols, displayEq: buildQuadDisplay(a, b, c) };
+}
+
+const qfInputIds = ['qf-b1','qf-b2','qf-a1','qf-c1','qf-a2','qf-neg-b','qf-2a','qf-bsq','qf-4ac','qf-D'];
+
+function qfLoadNew() {
+  qfProblem   = generateQFProblem();
+  qfCompleted = false;
+  qfHasError  = false;
+  document.getElementById('qf-equation').innerHTML = qfProblem.displayEq;
+  qfInputIds.forEach(id => {
+    const el = document.getElementById(id);
+    el.value = ''; el.disabled = false;
+    el.classList.remove('field-error', 'field-correct');
+  });
+  document.getElementById('qf-answer-box').style.display = 'none';
+  const btn = document.getElementById('qf-submit-btn');
+  btn.textContent = '判定する'; btn.className = 'submit-btn';
+  document.getElementById('qf-feedback').className = 'feedback';
+  document.getElementById('qf-b1').focus();
+}
+
+function qfSubmit() {
+  if (qfCompleted) { qfLoadNew(); return; }
+
+  // 操作可能なフィールドのみ対象（正解済みでロックされたものは除く）
+  const activeIds = qfInputIds.filter(id => !document.getElementById(id).disabled);
+
+  // 前回のハイライトをリセットして未入力チェック
+  activeIds.forEach(id => document.getElementById(id).classList.remove('field-error', 'field-correct'));
+  const emptyIds = activeIds.filter(id => !document.getElementById(id).value.trim());
+  if (emptyIds.length > 0) {
+    emptyIds.forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.add('field-error');
+      el.addEventListener('input', () => el.classList.remove('field-error'), { once: true });
+    });
+    return;
+  }
+
+  const expected = {
+    'qf-b1':    qfProblem.b,       'qf-b2':  qfProblem.b,
+    'qf-a1':    qfProblem.a,       'qf-c1':  qfProblem.c,
+    'qf-a2':    qfProblem.a,
+    'qf-neg-b': -qfProblem.b,
+    'qf-2a':    qfProblem.twoA,    'qf-bsq': qfProblem.bSq,
+    'qf-4ac':   qfProblem.fourAC,  'qf-D':   qfProblem.D,
+  };
+
+  let allOk = true;
+  activeIds.forEach(id => {
+    const el  = document.getElementById(id);
+    const val = parseInt(normalizeInt(el.value.trim()), 10);
+    const ok  = !isNaN(val) && val === expected[id];
+    if (!ok) allOk = false;
+    el.classList.add(ok ? 'field-correct' : 'field-error');
+    if (ok) el.disabled = true;   // 正解フィールドはロック、誤答は再入力可能のまま
+  });
+
+  const badge = document.getElementById('qf-result-badge');
+  const fb    = document.getElementById('qf-feedback');
+  const abox  = document.getElementById('qf-answer-box');
+
+  if (allOk) {
+    // 問題完了：問題数カウントはここで一度だけ
+    setCount('qf-cnt-total', getCount('qf-cnt-total') + 1);
+    animateCounter('qf-cnt-total', '+1', '#4a5568');
+
+    if (qfHasError) {
+      setCount('qf-cnt-corrected', getCount('qf-cnt-corrected') + 1);
+      animateCounter('qf-cnt-corrected', '+1', '#d69e2e');
+    } else {
+      setCount('qf-cnt-correct', getCount('qf-cnt-correct') + 1);
+      animateCounter('qf-cnt-correct', '+1', '#38a169');
+    }
+
+    playCorrectSound();
+    fb.className = 'feedback correct';
+    badge.className = 'result-badge correct-badge';
+    badge.textContent = qfHasError ? '△ 訂正して正解！' : '⭕️ 大正解！';
+    const [s1, s2] = qfProblem.sols;
+    abox.textContent = s1 === s2 ? `x = ${s1}` : `x = ${s2}　または　x = ${s1}`;
+    abox.style.display = '';
+
+    qfCompleted = true;
+    qfHasError  = false;
+    const btn = document.getElementById('qf-submit-btn');
+    btn.textContent = '次の問題へ（Enter）'; btn.className = 'submit-btn next-mode';
+
+  } else {
+    qfHasError = true;
+    playIncorrectSound();
+    fb.className = 'feedback calculated-warning';
+    badge.className = 'result-badge warning-badge';
+    badge.textContent = '❌ 赤いフィールドを修正して、もう一度判定してください';
+    abox.style.display = 'none';
+    // ボタンは「判定する」のまま維持
+  }
+}
+
+document.getElementById('qf-submit-btn').addEventListener('click', qfSubmit);
+qfInputIds.forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); qfSubmit(); }
+  });
 });
 
 // ── Initialize ────────────────────────────────────────────────────────────────
@@ -889,6 +1247,7 @@ if ('serviceWorker' in navigator) {
 
 eqLoadNew();
 expLoadNew();
+qfLoadNew();
 </script>
 </body>
 </html>

@@ -1,0 +1,410 @@
+<title>俳句生成エンジン構築記録</title>
+<style>
+:root{
+  --bg:#faf7f0; --surface:#f1ebdf; --ink:#1c1b1a; --sub:#55504a; --muted:#8a8378;
+  --accent:#2c4a6e; --accent-soft:#e4ecf3; --warn:#b8552f; --warn-soft:#f6e6dd;
+  --ok:#4a6741; --ok-soft:#e7eee2; --rule:#ddd3c0; --code-bg:#2a2824; --code-ink:#eee6d8;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17160f; --surface:#211f17; --ink:#ece6d8; --sub:#c9c0ae; --muted:#8f8877;
+    --accent:#8fb3d9; --accent-soft:#223449; --warn:#e8946c; --warn-soft:#3a2a20;
+    --ok:#9bc08a; --ok-soft:#293626; --rule:#3a3528; --code-bg:#0e0d09; --code-ink:#e8e0cf;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17160f; --surface:#211f17; --ink:#ece6d8; --sub:#c9c0ae; --muted:#8f8877;
+  --accent:#8fb3d9; --accent-soft:#223449; --warn:#e8946c; --warn-soft:#3a2a20;
+  --ok:#9bc08a; --ok-soft:#293626; --rule:#3a3528; --code-bg:#0e0d09; --code-ink:#e8e0cf;
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Noto Sans JP",sans-serif;
+  font-size:15px; line-height:1.75; margin:0; padding:0 16px;
+}
+.wrap{max-width:780px; margin:0 auto; padding-block:48px 80px;}
+
+h1,h2,h3{font-family:"Shippori Mincho","Noto Serif JP",serif; font-weight:700; line-height:1.4; text-wrap:balance;}
+h1{font-size:1.9rem; margin:0 0 6px;}
+h2{font-size:1.3rem; margin:52px 0 6px; padding-top:14px; border-top:1px solid var(--rule); color:var(--accent);}
+h3{font-size:1.05rem; margin:28px 0 4px; color:var(--ink);}
+p{color:var(--sub); margin:8px 0;}
+a{color:var(--accent);}
+
+.kicker{font-family:"Shippori Mincho",serif; font-size:.82rem; letter-spacing:.14em; color:var(--muted); margin:0;}
+.lede{font-size:1rem; color:var(--sub); max-width:62ch;}
+.meta{display:flex; gap:18px; flex-wrap:wrap; font-size:.82rem; color:var(--muted); margin-top:14px;}
+.meta b{color:var(--sub); font-weight:600;}
+
+.status-row{display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 4px;}
+.pill{display:inline-flex; align-items:center; gap:6px; font-size:.78rem; padding:5px 11px; border-radius:999px; font-weight:600;}
+.pill.ok{background:var(--ok-soft); color:var(--ok);}
+.pill.warn{background:var(--warn-soft); color:var(--warn);}
+.pill.neutral{background:var(--surface); color:var(--sub); border:1px solid var(--rule);}
+
+.callout{border-radius:10px; padding:14px 16px; margin:14px 0; font-size:.92rem;}
+.callout.ok{background:var(--ok-soft); border:1px solid color-mix(in srgb, var(--ok) 35%, transparent);}
+.callout.warn{background:var(--warn-soft); border:1px solid color-mix(in srgb, var(--warn) 35%, transparent);}
+.callout p{color:var(--ink); margin:0;}
+.callout .label{font-weight:700; font-size:.78rem; letter-spacing:.04em; text-transform:uppercase; display:block; margin-bottom:4px;}
+.callout.ok .label{color:var(--ok);}
+.callout.warn .label{color:var(--warn);}
+
+table{width:100%; border-collapse:collapse; margin:14px 0; font-size:.86rem;}
+caption{text-align:left; font-size:.78rem; color:var(--muted); margin-bottom:6px; caption-side:top;}
+th,td{text-align:left; padding:7px 10px; border-bottom:1px solid var(--rule);}
+th{color:var(--muted); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.03em;}
+td{color:var(--sub);}
+tr:last-child td{border-bottom:none;}
+td.num,th.num{text-align:right; font-variant-numeric:tabular-nums;}
+.tablewrap{overflow-x:auto;}
+
+code{font-family:"JetBrains Mono",ui-monospace,monospace; font-size:.84em; background:var(--surface); padding:1px 5px; border-radius:4px; color:var(--ink);}
+pre{background:var(--code-bg); color:var(--code-ink); border-radius:10px; padding:14px 16px; overflow-x:auto; font-size:.82rem; line-height:1.6;}
+pre code{background:none; padding:0; color:inherit;}
+
+.timeline{border-left:2px solid var(--rule); padding-left:20px; margin:16px 0;}
+.tl-item{position:relative; margin-bottom:22px;}
+.tl-item::before{content:""; position:absolute; left:-25px; top:5px; width:9px; height:9px; border-radius:50%; background:var(--accent); border:2px solid var(--bg);}
+.tl-item.warn::before{background:var(--warn);}
+.tl-item.ok::before{background:var(--ok);}
+.tl-item h3{margin:0 0 4px; font-size:.98rem;}
+.tl-item p{margin:0 0 4px; font-size:.88rem;}
+
+.filelist{list-style:none; padding:0; margin:12px 0; font-size:.86rem;}
+.filelist li{padding:6px 0; border-bottom:1px dotted var(--rule); display:flex; gap:10px;}
+.filelist code{flex-shrink:0;}
+.filelist span{color:var(--muted);}
+
+.arch{display:flex; flex-direction:column; gap:8px; margin:18px 0;}
+.arch-stage{background:var(--surface); border:1px solid var(--rule); border-radius:10px; padding:12px 16px; font-size:.86rem;}
+.arch-stage b{color:var(--accent); font-family:"Shippori Mincho",serif;}
+.arch-arrow{text-align:center; color:var(--muted); font-size:.8rem;}
+
+.toc{background:var(--surface); border:1px solid var(--rule); border-radius:12px; padding:16px 20px; margin:26px 0; font-size:.86rem;}
+.toc b{font-family:"Shippori Mincho",serif; display:block; margin-bottom:8px; color:var(--accent);}
+.toc ol{margin:0; padding-left:20px; columns:2; column-gap:24px;}
+.toc li{break-inside:avoid; margin-bottom:4px;}
+.toc a{color:var(--sub); text-decoration:none;}
+.toc a:hover{color:var(--accent);}
+
+footer{margin-top:70px; padding-top:18px; border-top:1px solid var(--rule); color:var(--muted); font-size:.78rem;}
+
+@media (max-width:480px){
+  .toc ol{columns:1;}
+  h1{font-size:1.5rem;}
+}
+</style>
+
+<div class="wrap">
+
+<p class="kicker">オンデバイス俳句生成プロジェクト(MLX Swift) — 技術記録</p>
+<h1>俳句生成エンジン構築記録</h1>
+<p class="lede">LLM-jp-3-150m を教師とした俳句生成パイプラインの実装、教師モデルの学習不備の発見と修正、量子化以外の高速化検証、そして小型モデルへの知識蒸留の試行錯誤をまとめた再現用の記録。</p>
+<p class="lede" style="font-size:.86rem; color:var(--muted);">※ Apple純正の「Apple Intelligence」(Foundation Models / adapter_training_toolkit)は使用していない。独自にMLX Swiftで構築したオンデバイス推論エンジン。学習手法は段階によって異なる(§3はLoRA、§5最終版はフルファインチューニング)。</p>
+
+<div class="meta">
+  <span><b>対象モデル</b> llm-jp/llm-jp-3-150m-instruct3 (Llamaアーキテクチャ)</span>
+  <span><b>実行環境</b> Python 3.14 / PyTorch (CPU・MPS) + Swift / MLX</span>
+  <span><b>最終更新</b> 2026-10-12</span>
+</div>
+
+<div class="status-row">
+  <span class="pill ok">教師モデル再学習 完了</span>
+  <span class="pill ok">層枝刈り(152M→127M) MLX動作確認済み</span>
+  <span class="pill warn">蒸留データ生成 進行中(目標5,000件)</span>
+  <span class="pill neutral">量子化以外の高速化 効果薄(CPU計測)</span>
+</div>
+
+<div class="toc">
+  <b>目次</b>
+  <ol>
+    <li><a href="#overview">1. 全体像</a></li>
+    <li><a href="#arch">2. 生成パイプラインの構造</a></li>
+    <li><a href="#teacher">3. 教師モデルの学習不備と再学習</a></li>
+    <li><a href="#speed">4. 量子化以外の高速化策の検証</a></li>
+    <li><a href="#distill">5. 小型モデルへの蒸留</a></li>
+    <li><a href="#infra">6. インフラ面の教訓</a></li>
+    <li><a href="#repro">7. 再現手順</a></li>
+    <li><a href="#todo">8. 既知の課題</a></li>
+  </ol>
+</div>
+
+<h2 id="overview">1. 全体像</h2>
+<p>iOS上でオンデバイス実行する俳句生成モデルを作る試み(Apple純正のApple Intelligence機構は
+使用せず、MLX Swiftで独自に実装)。核となる生成ロジックは
+<code>llmjp/generate_haiku.py</code>(Python/HuggingFace Transformers、プロトタイプ環境)と、
+その移植である <code>llmjp/haiku_mlx_smoketest/</code>(Swift/MLX、実機デプロイ先)の2系統で
+並行開発している。本記録はPython側プロトタイプでの検証結果を中心に、Swift/MLX側との
+互換性確認までをまとめる。</p>
+
+<div class="callout warn">
+  <span class="label">最重要の発見</span>
+  <p>本番で使われていたモデル(<code>haiku-150m-merged</code>)のLoRAは、85,414件・3epochの
+  設計に対し実際には<b>50ステップしか学習されていなかった</b>(動作確認用の短時間実行結果を
+  誤ってmergeしていた)。train_loss=5.27は収束には程遠い値で、これまでの生成品質は
+  LoRAチューニングではなくベースモデル自体のプロンプト追従能力に大きく依存していた。</p>
+</div>
+
+<h2 id="arch">2. 生成パイプラインの構造</h2>
+<p>五七五の構造を厳密に満たすため、句を「上句(5音)→中句(7音)→下句(5音)」の順に
+逐次ビームサーチで埋める3段階方式を採用している。</p>
+
+<div class="arch">
+  <div class="arch-stage"><b>入力語セット決定</b> — 1〜2語の入力に対し、季語かどうかを判定し
+  (季語でなければ季節に応じた季語を抽選)、語の配置パターン(上句/中句/下句のどこに
+  固定するか、最大6通り)を音数の制約で絞り込む。</div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-stage"><b>第1段階: 上句(5音)</b> — <code>model.generate()</code>を
+  num_samples=16でバッチサンプリングし、文節境界・モーラ数(=5)を満たす候補のみ残す。</div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-stage"><b>第2段階: 中句(7音)</b> — 上句の候補ごとに同様に生成。
+  上句で使われた名詞・動詞(表層形/読み)および他スロットの固定語との重複を禁止する。</div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-stage"><b>第3段階: 下句(5音)</b> — 同様に生成し、完成した17音の句を得る。</div>
+  <div class="arch-arrow">↓</div>
+  <div class="arch-stage"><b>評価・ランキング</b> — 季重なり判定、N-gramベースの新規性スコア
+  (現代俳句DB 27,881句との文字バイグラム類似度)、Apple NaturalLanguageによる感情分析、
+  入力語含有ボーナスを合算した<code>rank_score</code>で上位を選ぶ。</div>
+</div>
+
+<h3>主要ファイル</h3>
+<ul class="filelist">
+  <li><code>generate_haiku.py</code><span>3段階ビームサーチ本体、パターン横断バッチ化、CLIエントリポイント</span></li>
+  <li><code>haiku_analyzer.py</code><span>モーラ解析(Janome)・季語判定・新規性・感情分析</span></li>
+  <li><code>train_haiku_model.py</code><span>LoRA / フルファインチューニング学習スクリプト</span></li>
+  <li><code>prepare_dataset.py</code><span>gendai_haiku.dbからSFT用JSONLを生成</span></li>
+  <li><code>bench_pipeline.py</code><span>速度・質(strict575率・季重なり率・rank_score)の比較計測</span></li>
+  <li><code>haiku_mlx_smoketest/</code><span>Swift/MLX移植版(推論エンジン・ビームサーチ・季語/新規性/感情のSwift実装)</span></li>
+</ul>
+
+<h2 id="teacher">3. 教師モデルの学習不備と再学習</h2>
+<p>蒸留(§5)の教師データを作る準備の過程で、既存の学習基盤を調査していたところ、本番モデルの
+LoRA学習が実質ノーオペレーションだったことが判明した。</p>
+
+<div class="tablewrap">
+<table>
+<caption>再学習前後の比較</caption>
+<thead><tr><th>項目</th><th>再学習前(本番だった版)</th><th>再学習後</th></tr></thead>
+<tbody>
+<tr><td>学習ステップ数</td><td class="num">50</td><td class="num">8,010</td></tr>
+<tr><td>train_loss</td><td class="num">5.27</td><td class="num">3.92</td></tr>
+<tr><td>eval_loss</td><td class="num">—</td><td class="num">3.56</td></tr>
+<tr><td>所要時間</td><td class="num">15.3秒</td><td class="num">27分(MPS)</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>生成句を目視比較すると差は明確だった。</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th>入力語</th><th>再学習前</th><th>再学習後</th></tr></thead>
+<tbody>
+<tr><td>夕立</td><td>昼の風夕立が道無き実は</td><td>夕立の山河をつつむ村ありて</td></tr>
+<tr><td>珈琲+本</td><td>珈琲の本は古老でひとめ捨て</td><td>珈琲の窓に光って本降りぬ</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>ユーザー承認のうえ、<code>haiku-150m-merged</code>/<code>haiku-150m-finetuned</code>を
+再学習版に置き換え、旧版は<code>-v1-undertrained</code>サフィックスで保存した。
+副産物として、非日本語文字(全角括弧・ラテン文字・まれにアラビア文字)が句に混入する
+既知の軽微な不具合も発見した(v1/v2どちらにも同程度存在、モーラカウントが仮名のみを
+数えるため検出をすり抜ける)。</p>
+
+<h2 id="speed">4. 量子化以外の高速化策の検証</h2>
+<p>実機(iPhone上のオンデバイス実行)ではMLX/Swift経由でNPU・GPUを使う想定のため、
+Python/PyTorch側のCPU速度自体は直接の問題にならないが、量子化以外の最適化が
+アルゴリズムレベルで有効かを検証した(CPU計測、各ケース3回平均)。</p>
+
+<div class="tablewrap">
+<table>
+<caption>施策ごとの合計所要時間(12ケース合計、num_patterns=2・4)</caption>
+<thead><tr><th>施策</th><th>内容</th><th class="num">所要時間</th><th>判定</th></tr></thead>
+<tbody>
+<tr><td>ベースライン</td><td>逐次呼び出し</td><td class="num">152.4秒</td><td>—</td></tr>
+<tr><td>A: パターン横断バッチ化</td><td>複数パターンを1回のバッチ推論にまとめる</td><td class="num">153.4秒</td><td>効果なし(誤差範囲)</td></tr>
+<tr><td>B: KVキャッシュ再利用</td><td>指示文プレフィックスのキャッシュを使い回す</td><td class="num">(未測定)</td><td>断念 — HF内部APIの数値的非互換性</td></tr>
+<tr><td>C: モーラ早期停止</td><td>max_new_tokensを実測値ベースで15/18→10/13に削減</td><td class="num">158.3秒</td><td>効果なし(誤差範囲)、歩留まりは不変</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout warn">
+  <span class="label">施策Bを断念した理由</span>
+  <p>HFの<code>past_key_values</code>を手動で組み立てて<code>generate()</code>に渡す方式を
+  試作したところ、1トークン目のlogitsは順位一致するものの値に系統的なズレが生じ、
+  数トークン後に貪欲デコード結果が分岐した。キャッシュ分割によるRoPE計算順序の違いに
+  起因すると見られ、根本原因の特定には内部実装への深入りが必要なため、CPU速度が
+  問題にならないという前提も踏まえて追及を見送った。</p>
+</div>
+
+<p>CPU環境ではこれらの施策の効果が測定できなかった。原因は候補検証処理
+(Janome形態素解析)や外部プロセスの負荷が支配的になりやすいためと推測される。
+MLX/Swift側(実機相当)での再検証は未実施。</p>
+
+<h2 id="distill">5. 小型モデルへの蒸留</h2>
+
+<h3>5.1 当初案: rinna GPT-2系 — MLX非対応で断念</h3>
+<p>候補として <code>rinna/japanese-gpt2-small</code>(123M)と
+<code>rinna/japanese-gpt2-xsmall</code>(37M)を検討したが、実機デプロイ先である
+<code>mlx-swift-lm</code>のモデルレジストリ(<code>LLMModelFactory.swift</code>)を
+直接確認したところ、GPT-2アーキテクチャ(<code>"gpt2"</code>)はサポート対象に
+<b>含まれていない</b>ことが判明した(Llama, Qwen2, Gemma, Phi, Mistral等は対応)。
+Python側でどれだけ良く学習できてもMLXでロードできなければ意味がないため、
+このアプローチは断念した。</p>
+
+<h3>5.2 方針転換: 教師モデル自体の層枝刈り</h3>
+<p>確実にMLXで動くことを優先し、教師モデルと同じLlamaアーキテクチャのまま
+層数を間引く構造的プルーニングを採用した。</p>
+
+<div class="tablewrap">
+<table>
+<caption>パラメータ内訳(枝刈り前)</caption>
+<thead><tr><th>部分</th><th class="num">パラメータ数</th><th class="num">割合</th></tr></thead>
+<tbody>
+<tr><td>入力埋め込み(vocab=99,584)</td><td class="num">51.0M</td><td class="num">33.5%</td></tr>
+<tr><td>出力層 lm_head</td><td class="num">51.0M</td><td class="num">33.5%</td></tr>
+<tr><td>Transformer本体(12層)</td><td class="num">50.3M</td><td class="num">33.0%</td></tr>
+<tr><td><b>合計</b></td><td class="num"><b>152.3M</b></td><td class="num">100%</td></tr>
+</tbody>
+</table>
+</div>
+<p>多言語語彙(99,584語彙)の埋め込みが全体の67%を占めるため、
+<b>層だけを枝刈りしても削減幅は限定的</b>(12→6層で152M→127M、約17%減)。
+より大きな削減には語彙枝刈り(実際に使う語彙だけに絞る)が必要だが、
+今回はリスクの低い層枝刈りのみを実施した。</p>
+
+<div class="tablewrap">
+<table>
+<caption>枝刈り→回復学習の結果</caption>
+<thead><tr><th>項目</th><th class="num">値</th></tr></thead>
+<tbody>
+<tr><td>層数</td><td class="num">12 → 6(0,2,4,6,8,10番目を保持)</td></tr>
+<tr><td>パラメータ数</td><td class="num">152.3M → 127.1M (83.5%)</td></tr>
+<tr><td>回復学習データ</td><td class="num">実コーパス85,414件 + 蒸留データ2,150件以上</td></tr>
+<tr><td>回復学習後 train_loss</td><td class="num">2.45</td></tr>
+<tr><td>回復学習後 eval_loss</td><td class="num">1.00(教師モデルの3.56より良好)</td></tr>
+<tr><td>bench_pipeline strict575率</td><td class="num">全ケース100%</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout ok">
+  <span class="label">MLX実機検証: 成功</span>
+  <p>枝刈り・回復学習済みモデルをMLX形式に変換し、<code>haiku_mlx_smoketest</code>
+  (Swiftパイプライン)で実際にロード・GPU実行・生成まで確認した。
+  「蛍烏賊珈琲の火に色うめて」(季語【蛍】[夏]、季重なりなし)を含む5句を11.0秒で生成。
+  層枝刈りアプローチがMLX/Swiftで実機デプロイ可能であることを実証した。</p>
+</div>
+
+<h2 id="infra">6. インフラ面の教訓</h2>
+<p>プロジェクト全体がGoogle Drive配下にあったことに起因する問題を多数経験した。
+最終的にプロジェクトをローカルディスク(<code>/Users/takaho/Projects/Haiku</code>)へ
+移動して解決した。</p>
+
+<div class="timeline">
+  <div class="tl-item warn">
+    <h3>ファイルのクラウド専用プレースホルダ化</h3>
+    <p>ディスク空き容量が逼迫すると、モデルファイル(600MB級)や<code>__pycache__</code>の
+    <code>.pyc</code>まで実体がクラウドのみになり、アクセス時に再ダウンロードで
+    数分〜数十分ブロックされる現象が繰り返し発生した。</p>
+  </div>
+  <div class="tl-item warn">
+    <h3>Google Driveアプリ自体の異常</h3>
+    <p>CPU使用率100%超・メモリ6.9GB・累積CPU時間27時間超という異常状態になり、
+    ファイルアクセスの有無に関わらずシステム全体の速度を落としていた。</p>
+  </div>
+  <div class="tl-item warn">
+    <h3>Xcodeビルド成果物の破損</h3>
+    <p><code>.dSYM</code>バンドル(本来ディレクトリ)がDrive同期で単一ファイル化され、
+    rsyncでの移動時に見かけ上1TBのファイルとして認識されコピーが停止した。
+    ビルド成果物(<code>.build</code>等)はそもそも同期・コピー対象から除外すべきだった。</p>
+  </div>
+  <div class="tl-item ok">
+    <h3>対処: ローカルへの全面移動</h3>
+    <p>作業ディレクトリをGoogle Drive外(<code>/Users/takaho/Projects/Haiku</code>)へ
+    rsyncで移動(ビルド成果物は<code>--exclude</code>)。以降は速度・安定性ともに
+    問題が解消した。</p>
+  </div>
+  <div class="tl-item warn">
+    <h3>PyTorch/MPSの長時間ハング</h3>
+    <p>蒸留データ生成をMPS(GPU)で長時間ループ実行すると、メモリリーク
+    (プロセスの物理メモリ使用量が2GB→9.7GBまで増大)や、
+    <code>-[_MTLCommandBuffer waitUntilCompleted]</code>内でのブロッキング待機からの
+    回復不能な停止が繰り返し発生した。<code>signal.alarm</code>によるタイムアウトは
+    カーネルレベルのブロッキング待機中は配送されず無力だった。</p>
+  </div>
+  <div class="tl-item ok">
+    <h3>対処: CPUへの切替</h3>
+    <p>データ生成処理はCPU実行に固定。速度は遅くなるが安定して完走する。
+    MLX Swift側は別実装(PyTorch MPSバックエンドを使わない)のため、
+    同種の問題は観測されていない。</p>
+  </div>
+</div>
+
+<h2 id="repro">7. 再現手順</h2>
+
+<h3>7.1 教師モデルの正式再学習</h3>
+<pre><code>cd llmjp
+python3 train_haiku_model.py --output_dir haiku-150m-finetuned-v2
+python3 merge_lora.py --peft_dir haiku-150m-finetuned-v2 --output_dir haiku-150m-merged-v2
+python3 bench_pipeline.py --device cpu --label teacher_v2 --merged_dir haiku-150m-merged-v2</code></pre>
+
+<h3>7.2 層枝刈り + 回復学習</h3>
+<pre><code>python3 prune_model.py --output_dir haiku-127m-pruned --target_n_layers 6
+
+cat dataset/haiku_train.jsonl dataset/distillation_data.jsonl \
+  > dataset/pruned_recovery_train.jsonl
+
+python3 train_haiku_model.py \
+  --model_id haiku-127m-pruned --full_finetune --device cpu \
+  --train_file dataset/pruned_recovery_train.jsonl \
+  --eval_file dataset/haiku_eval.jsonl \
+  --output_dir haiku-127m-pruned-finetuned</code></pre>
+
+<h3>7.3 蒸留データ生成(単語ごとのタイムアウト保護つき)</h3>
+<pre><code># まず問題のある入力語を特定(季語のモーラ数>7等)
+python3 investigate_slow_words.py --device cpu --timeout 25
+
+# 300件ずつプロセスを再起動しながら目標件数まで生成
+./run_distillation_batches.sh 5000 300</code></pre>
+
+<h3>7.4 MLX変換とSwift実機検証</h3>
+<pre><code>python3 -m mlx_lm convert --hf-path haiku-127m-pruned-finetuned \
+  --mlx-path haiku-127m-pruned-mlx --dtype float16
+
+# tokenizer_config.json の "tokenizer_class" を
+# "TokenizersBackend" → "T5Tokenizer" に書き換える(既知の必須手順)
+
+cd haiku_mlx_smoketest
+xcodebuild build -scheme haiku_mlx_smoketest -destination 'platform=OS X' \
+  -derivedDataPath .xcodebuild
+
+HAIKU_MLX_MODEL_DIR=.../haiku-127m-pruned-mlx \
+HAIKU_SUDACHI_DICT=.../sudachidict_core/resources/system.dic \
+HAIKU_GENDAI_DB=.../gendai_haiku.db \
+  ./.xcodebuild/Build/Products/Debug/haiku_mlx_smoketest</code></pre>
+
+<h2 id="todo">8. 既知の課題</h2>
+<ul>
+  <li>蒸留データ生成(目標5,000件)は本記録作成時点で進行中。完了後に学生モデルの
+  実質的な品質評価(教師との目視比較)が必要。</li>
+  <li>語彙枝刈り(埋め込み67%の削減)は未実施。さらなるサイズ削減にはこちらが本命。</li>
+  <li>非日本語文字が句に混入する不具合(§3)の恒久対応(候補検証への文字種フィルタ追加)は未実装。</li>
+  <li>新規性判定(novelty)のSQLite接続が、プロジェクト移動後のSwift側で稀に
+  パス解決に失敗する(<code>unable to open database file</code>)。原因未特定、
+  本質的でない補助機能のため優先度は低い。</li>
+  <li>MLX Swift側での量子化以外の高速化策(§4)の再検証は未実施。</li>
+</ul>
+
+<footer>
+  オンデバイス俳句生成プロジェクト(MLX Swift) — 作業記録。再現・引き継ぎ用に随時更新。
+</footer>
+
+</div>

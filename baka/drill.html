@@ -861,7 +861,67 @@ function animateCounter(elId, floatText, floatColor) {
 }
 
 function getCount(id) { return parseInt(document.getElementById(id).textContent, 10) || 0; }
-function setCount(id, n) { document.getElementById(id).textContent = n; }
+function setCount(id, n) {
+  document.getElementById(id).textContent = n;
+  saveProgress();
+}
+
+// ── 進捗の保存（その日のみ有効。日付が変わったら 0 から） ───────────────────
+const PROGRESS_KEY = 'saisugaku-progress-v1';
+const COUNTER_IDS = [
+  'eq-cnt-total', 'eq-cnt-correct', 'eq-cnt-miss',
+  'exp-cnt-total', 'exp-cnt-correct', 'exp-cnt-miss',
+  'qf-cnt-total', 'qf-cnt-correct', 'qf-cnt-corrected',
+  'tr-cnt-total', 'tr-cnt-correct', 'tr-cnt-corrected',
+];
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function saveProgress() {
+  try {
+    const counts = {};
+    COUNTER_IDS.forEach(id => { counts[id] = getCount(id); });
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify({ date: todayStr(), activeMs: activeElapsedMs(), shared: sharedFlag, counts }));
+  } catch (e) {}
+}
+// 保存済みの今日の進捗を画面に反映する。無い・別の日なら 0 から始める
+function applyProgress() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(PROGRESS_KEY)); } catch (e) {}
+  const valid = saved && saved.date === todayStr() && saved.counts;
+  // 共有済みなら、次の問題に取り組む扱い（開き直し）として 0 から始める
+  const keep = valid && !saved.shared;
+  activeMs = keep && Number.isFinite(saved.activeMs) ? saved.activeMs : 0;
+  visibleSince = document.visibilityState === 'visible' ? Date.now() : null;
+  sharedFlag = false;
+  COUNTER_IDS.forEach(id => {
+    const n = keep ? parseInt(saved.counts[id], 10) : 0;
+    document.getElementById(id).textContent = Number.isFinite(n) && n > 0 ? n : 0;
+  });
+  trUpdateGoal();
+  if (valid && saved.shared) saveProgress();
+}
+
+// ── 共有後のリセット ──────────────────────────────────────────────────────────
+// 共有した結果を次の挑戦に持ち越さない（共有後、次の問題に取り組んだ時点で 0 に戻す）
+let sharedFlag = false;
+function markShared() { sharedFlag = true; saveProgress(); }
+function resetAfterShare() {
+  if (!sharedFlag) return;
+  sharedFlag = false;
+  COUNTER_IDS.forEach(id => { document.getElementById(id).textContent = 0; });
+  activeMs = 0;
+  visibleSince = document.visibilityState === 'visible' ? Date.now() : null;
+  trUpdateGoal();
+  saveProgress();
+}
+// 入力・判定/次へボタン・Enter のいずれかが最初に行われた時点（キャプチャ段階＝処理より前）
+document.addEventListener('input', resetAfterShare, true);
+document.addEventListener('keydown', e => { if (e.key === 'Enter') resetAfterShare(); }, true);
+document.addEventListener('click', e => {
+  if (e.target.closest('.submit-btn, .sign-toggle-btn')) resetAfterShare();
+}, true);
 
 // ── Share ─────────────────────────────────────────────────────────────────────
 document.getElementById('share-btn').addEventListener('click', async () => {
@@ -869,7 +929,7 @@ document.getElementById('share-btn').addEventListener('click', async () => {
   const exT = getCount('exp-cnt-total'), exC = getCount('exp-cnt-correct'), exM = getCount('exp-cnt-miss');
   const qfT = getCount('qf-cnt-total'), qfC = getCount('qf-cnt-correct'), qfCorr = getCount('qf-cnt-corrected');
   const trT = getCount('tr-cnt-total'), trC = getCount('tr-cnt-correct'), trCorr = getCount('tr-cnt-corrected');
-  const secs = Math.floor((Date.now() - startTime) / 1000);
+  const secs = Math.floor(activeElapsedMs() / 1000);
   const elapsedStr = secs < 60 ? `${secs}秒` : `${Math.floor(secs / 60)}分${secs % 60}秒`;
   const text = [
     '📐 最数学 結果',
@@ -882,9 +942,11 @@ document.getElementById('share-btn').addEventListener('click', async () => {
   ].join('\n');
 
   if (navigator.share) {
-    try { await navigator.share({ title: '最数学 結果', text }); return; } catch(e) {}
+    try { await navigator.share({ title: '最数学 結果', text }); markShared(); return; }
+    catch(e) { if (e && e.name === 'AbortError') return; }   // 共有を取りやめた場合は何もしない
   }
   window.open('https://line.me/R/share?text=' + encodeURIComponent(text), '_blank');
+  markShared();
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1766,16 +1828,32 @@ function trSubmit() {
 document.getElementById('tr-submit-btn').addEventListener('click', trSubmit);
 
 // ── Initialize ────────────────────────────────────────────────────────────────
-const startTime = Date.now();
+// 経過時間は画面を開いていた時間だけを積算する（スクリーンタイムの中断は含めない）
+let activeMs = 0;
+let visibleSince = Date.now();
+function activeElapsedMs() { return activeMs + (visibleSince ? Date.now() - visibleSince : 0); }
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
+applyProgress();
 eqLoadNew();
 expLoadNew();
 qfLoadNew();
 trLoadNew();
+
+// 開きっぱなしで日付をまたいだ場合も、画面に戻った時点で 0 から始め直す
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') {
+    activeMs = activeElapsedMs(); visibleSince = null; saveProgress();
+    return;
+  }
+  visibleSince = Date.now();
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(PROGRESS_KEY)); } catch (e) {}
+  if (saved && saved.date !== todayStr()) applyProgress();
+});
 </script>
 </body>
 </html>
